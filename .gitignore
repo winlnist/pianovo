@@ -1,0 +1,59 @@
+# macOS metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode user and local state
+*.xcuserstate
+*.xcuserdata/
+xcuserdata/
+*.moved-aside
+DerivedData/
+Build/
+build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+*.xcresult
+*.hmap
+
+# Swift Package Manager local state
+.build/
+.swiftpm/
+Package.pins
+
+# CocoaPods/Carthage local build outputs
+Pods/
+Carthage/Build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Secrets and local configuration
+.env
+.env.*
+*.xcconfig.local
+Secrets.*
+secrets.*
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+
+# Personal practice data and recordings
+Recordings/
+PracticeRecordings/
+PracticeHistory/
+Exports/
+*.caf
+*.m4a
+*.mp3
+*.wav
+*.aiff
+*.flac
