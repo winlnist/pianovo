@@ -72,7 +72,7 @@ struct PracticeScreen: View {
     private var topHUD: some View {
         HStack(alignment: .center, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("Sightlink Piano")
+                Text(AppBrand.displayName)
                     .font(.headline.weight(.semibold))
                 Text("\(viewModel.mode.rawValue) - \(viewModel.progressLabel)")
                     .font(.caption)

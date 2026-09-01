@@ -1,0 +1,53 @@
+import SwiftUI
+
+struct AppShellView: View {
+    @State private var selectedDestination: AppDestination? = .practice
+
+    var body: some View {
+        NavigationSplitView {
+            List(AppDestination.allCases, selection: $selectedDestination) { destination in
+                Label(destination.title, systemImage: destination.systemImageName)
+                    .tag(destination)
+            }
+            .navigationTitle(AppBrand.displayName)
+            .toolbar {
+                ToolbarItem(placement: .bottomBar) {
+                    Text(AppBrand.tagline)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+        } detail: {
+            destinationView
+                .navigationTitle((selectedDestination ?? .practice).title)
+        }
+    }
+
+    @ViewBuilder
+    private var destinationView: some View {
+        switch selectedDestination ?? .practice {
+        case .practice:
+            PracticeScreen()
+        case .today, .progress, .library, .history, .askMyTeacher, .settings:
+            ComingSoonView(destination: selectedDestination ?? .practice)
+        }
+    }
+}
+
+private struct ComingSoonView: View {
+    let destination: AppDestination
+
+    var body: some View {
+        ContentUnavailableView {
+            Label(destination.title, systemImage: destination.systemImageName)
+        } description: {
+            Text("Coming in a later milestone.")
+        }
+        .background(Color(.systemGroupedBackground))
+    }
+}
+
+#Preview {
+    AppShellView()
+}

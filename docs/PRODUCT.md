@@ -1,5 +1,11 @@
 # Product
 
+## Working Product Identity
+
+The combined app's working user-facing name is Pianovo, with the tagline "Practice measured. Progress earned."
+
+Pianovo is a working brand name, not legal or trademark clearance. Keep the name centralized and easy to change until clearance is complete. Do not rename technical identifiers such as the Xcode project, targets, schemes, Swift module, bundle identifier, repository folder, or source file prefixes without a dedicated rename milestone.
+
 Sightlink Piano is a native SwiftUI app for iPhone and iPad that helps piano learners practice reading music and playing the correct notes on a physical MIDI keyboard.
 
 ## Core Purpose
@@ -8,7 +14,7 @@ The app should reduce the gap between seeing notation and finding the correct ke
 
 ## Current Product Experience
 
-The current app launches directly into continuous single-staff sight reading:
+The current app launches into a Pianovo navigation shell with Practice selected. Practice remains the existing continuous single-staff sight-reading experience:
 
 - The user selects Treble Reading or Bass Reading.
 - The app shows a paper-like music page with measures, systems, quarter notes, and a current-event highlight.
@@ -27,6 +33,7 @@ The current production experience is no longer the original one-note flash-card 
 
 The user should be able to:
 
+- Move through primary destinations for Today, Practice, Progress, Library, History, Ask My Teacher, and Settings, with unfinished areas clearly marked for later milestones.
 - Choose a practice range.
 - Practice treble or bass sight reading from a physical MIDI piano.
 - Receive clear correctness feedback.

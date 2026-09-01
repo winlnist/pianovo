@@ -103,6 +103,15 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Keep native drill/continuous-practice rendering separate from Verovio.
 - Defer imported-song practice, event highlighting inside Verovio output, file picker UI, broader MusicXML coverage, PDF/photo import, OMR, playback, and persistence.
 
+### 6C Pianovo Identity and Navigation Shell - Completed
+
+- Add Pianovo as the working user-facing product name and centralize the tagline "Practice measured. Progress earned."
+- Preserve all technical identifiers, including the Xcode project, targets, schemes, Swift module, bundle identifiers, folders, and source file prefixes.
+- Introduce primary app destinations for Today, Practice, Progress, Library, History, Ask My Teacher, and Settings.
+- Keep Practice wired to the existing production `PracticeScreen`.
+- Mark unfinished destinations as coming in a later milestone.
+- Do not add Beyer PDFs, supporting PDFs, audio materials, persistence, programme data, coach services, or technical rename work.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.
