@@ -33,6 +33,7 @@ The current production experience is no longer the original one-note flash-card 
 
 The user should be able to:
 
+- Follow a data-driven twelve-week Pianovo programme once programme UI is introduced.
 - Move through primary destinations for Today, Practice, Progress, Library, History, Ask My Teacher, and Settings, with unfinished areas clearly marked for later milestones.
 - Choose a practice range.
 - Practice treble or bass sight reading from a physical MIDI piano.
@@ -80,6 +81,7 @@ Over time, Sightlink Piano should grow into an App Store-quality practice app wi
 - AI recognition.
 - Optical music recognition.
 - Persistence/history.
+- Programme UI and persisted mastery decisions.
 - MIDI output or recording.
 - User accounts or cloud sync.
 

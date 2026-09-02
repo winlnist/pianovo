@@ -8,6 +8,7 @@ Dependencies point inward:
 
 ```text
 SwiftUI App/UI
+  -> Programme Domain
   -> Practice Engine
   -> Music Domain
 
@@ -57,6 +58,16 @@ Score
 ```
 
 Score events can represent notes, chords, or rests with exact duration, exact position, staff identity, voice identity, tie state, and stable identity. This model remains independent from MusicXML, Verovio, MIDI, rendering coordinates, practice progress, and persistence.
+
+### Programme Domain
+
+Milestone 6D adds a Programme Domain for planned curriculum structure. It models `PracticeProgramme`, `ProgrammeWeek`, `PracticeDay`, `PracticeBlock`, `PracticeAssignment`, `ExerciseSource`, `MasteryRule`, and `MasteryState`.
+
+The Programme Domain is reusable and framework-independent. It must not import SwiftUI, CoreMIDI, PDFKit, Verovio, WebKit, networking, or persistence frameworks. It also does not reference direct `ScoreEventID` values, Verovio positions, PDF pages, MusicXML element IDs, measures, notes, or fingerings. Assignments reference stable source IDs from an explicitly supplied `ExerciseSourceCatalogue`; later adapter layers can map those sources to inspected score material.
+
+Validation is split into general structural validation and Pianovo policy validation. General validation checks stable identifiers, ordering, positive durations, required fields, and catalogue/rule references. Pianovo policy validation checks the approved twelve-week shape: seven days per week, six practice days, one recovery/reflection day, and morning/evening practice structure where applicable.
+
+Mastery states describe learning status only: learning, stabilizing, nearly mastered, and mastered. Manual override is provenance for a future mastery-evaluation/progress layer, not a state in the Programme Domain.
 
 ### Import Adapters
 
@@ -181,6 +192,7 @@ The initial Xcode project has a single app target named Sightlink Piano. As the 
 Likely future groups:
 
 - `MusicDomain`
+- `Programme`
 - `Practice`
 - `MIDI`
 - `Rendering`

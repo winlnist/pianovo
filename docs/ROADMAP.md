@@ -112,6 +112,17 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Mark unfinished destinations as coming in a later milestone.
 - Do not add Beyer PDFs, supporting PDFs, audio materials, persistence, programme data, coach services, or technical rename work.
 
+### 6D Programme and Mastery Domain - Completed
+
+- Add framework-independent programme types using British spelling: `PracticeProgramme`, `ProgrammeWeek`, `PracticeDay`, `PracticeBlock`, `PracticeAssignment`, `ExerciseSource`, `MasteryRule`, and `MasteryState`.
+- Keep assignments data-driven through stable `ExerciseSourceID` references rather than SwiftUI hard-coding or direct score-event/PDF/MusicXML/Verovio mappings.
+- Add structured validation issues for general programme structure, including unique IDs, valid ordering, positive durations, required fields, source references, and mastery-rule references.
+- Keep Pianovo twelve-week policy validation separate from reusable domain validation.
+- Seed the twelve-week Pianovo structure with six practice days and one recovery/reflection day per week, typical 45-minute morning and evening practice sessions, and minimal source metadata.
+- Begin Beyer at Op. 101 No. 63 in Week 1; use an adaptive current-Beyer source for later weeks instead of preassigning later exercise numbers.
+- Model mastery learning states without treating manual override as a mastery state.
+- Defer persistence, progress records, mastery evaluation history, MIDI analysis, score-source mappings, PDFs, audio, coach functionality, and SwiftUI integration.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.
