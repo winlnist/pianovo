@@ -134,6 +134,18 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Add deterministic in-memory repository tests and SwiftData in-memory `ModelContainer` tests.
 - Defer SwiftUI history screens, app-root persistence wiring, automatic mastery evaluation, MIDI/audio capture, score assessment, coach/API integration, cloud sync, export UI, and 6F work.
 
+### 6F.1 Reference Material Catalogue and Source Resolution - Completed
+
+- Add a Foundation-only reference-material catalogue for all inspected local reference PDFs/audio without copying those files into source control or the app bundle.
+- Keep reference material identity logical and stable through `ReferenceMaterialID`, document descriptors, and component IDs.
+- Keep `ExerciseSourceID` to `ReferenceMaterialID` mapping inside a resolver boundary rather than Programme Domain.
+- Represent document availability separately from catalogue metadata, document access, programme assignment, and PDF presentation.
+- Add a default deterministic availability provider that reports known materials as unavailable until a later document-access adapter exists.
+- Model Beyer Op. 101 No. 63 as one logical exercise with distinct required Seconda and Prima components for the inspected 88-page Edition Peters scan.
+- Distinguish zero-based PDFKit page indices from printed page labels, and defer exact crop rectangles to visual verification.
+- Keep unverified rights status explicit as unknown.
+- Defer Today UI, Practice UI changes, PDFKit display, file importing, security-scoped bookmarks, document copying, bundled resources, persistence changes, MIDI/audio analysis, coach/API work, and 6F.2.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.

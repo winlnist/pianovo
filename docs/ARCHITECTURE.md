@@ -28,6 +28,10 @@ FullScoreRendering
 Persistence
   -> Progress Models / Practice Results
   -> Stable Music Event IDs
+
+Reference Material Resolution
+  -> Programme Source IDs
+  -> Logical Material Metadata
 ```
 
 The Music Domain must not depend on SwiftUI, CoreMIDI, Verovio, networking, persistence, or infrastructure frameworks.
@@ -191,6 +195,16 @@ Programme progress stores student-specific state: active programme ID/version, c
 
 The SwiftData adapter is `@MainActor` because `ModelContext` is actor-confined. Domain repository protocols are `async throws`, allowing adapters to report validation, duplicate identity, not-found, and persistence failures without exposing SwiftData.
 
+### Reference Materials
+
+Milestone 6F.1 adds a Foundation-only reference-material catalogue and source-resolution boundary. Catalogue entries describe known materials with stable logical identifiers, expected-document metadata, format, language, attribution, rights status, access requirement, and optional components.
+
+The reference-material catalogue must not hard-code development-machine paths or imply that inspected PDFs/audio are bundled, accessible, licensed for distribution, or score-aware. Document availability is supplied through a narrow provider protocol; the default provider reports known materials as unavailable until a later document-access adapter resolves user-imported documents, security-scoped references, application-managed copies, or legally approved bundled resources.
+
+Programme assignments continue to reference `ExerciseSourceID`; mapping from `ExerciseSourceID` to `ReferenceMaterialID` lives in the reference-material resolver rather than in Programme Domain.
+
+Beyer Op. 101 No. 63 is represented as one logical material with distinct required `Seconda` and `Prima` components for the inspected 88-page Edition Peters scan. PDF page locators distinguish zero-based PDFKit page indices from printed page labels, and exact crop rectangles remain deferred to later visual verification.
+
 ## Module Direction
 
 The initial Xcode project has a single app target named Sightlink Piano. As the code grows, prefer grouping by responsibility before adding separate packages or frameworks.
@@ -203,6 +217,7 @@ Likely future groups:
 - `MIDI`
 - `Rendering`
 - `Progress`
+- `ReferenceMaterials`
 - `App`
 
 Separate Swift packages or framework targets can be considered when boundaries become valuable for build times, reuse, or stronger dependency enforcement.

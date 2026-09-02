@@ -27,6 +27,7 @@ High-level boundaries:
 - Practice Engine: exercise state, expected answers, matching, scoring, session progress.
 - Programme Domain: data-driven practice programme structure, source references, mastery rules, and validation.
 - Progress/Persistence: local-first student progress records, repository protocols, and persistence adapters separated from Programme and Music domains.
+- Reference Materials: logical catalogue metadata and source-resolution boundaries, separate from document access and PDF presentation.
 - Rendering Adapters: convert domain notation into renderer-specific view models.
 - MIDI Adapter: observes CoreMIDI and converts MIDI messages into domain input events.
 - App/UI Layer: SwiftUI screens, app state composition, navigation, accessibility, user interaction.
@@ -94,6 +95,7 @@ Hot-plug/device-refresh code exists, but reconnect behavior has not yet been har
 - [docs/PRACTICE_ENGINE.md](docs/PRACTICE_ENGINE.md): practice state, matching, scoring, and statistics.
 - [docs/PROGRAMME_DOMAIN.md](docs/PROGRAMME_DOMAIN.md): programme structure, source references, mastery rules, validation, and seed-data boundaries.
 - [docs/PERSISTENCE_AND_HISTORY.md](docs/PERSISTENCE_AND_HISTORY.md): progress records, local persistence boundaries, schema versioning, and deletion/reset semantics.
+- [docs/REFERENCE_MATERIALS.md](docs/REFERENCE_MATERIALS.md): reference-material catalogue, availability, page terminology, and licensing boundaries.
 - [docs/IMPORT_PIPELINE.md](docs/IMPORT_PIPELINE.md): MusicXML and future PDF/photo recognition plan.
 
 ## Development Notes
