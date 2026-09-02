@@ -135,6 +135,60 @@ struct SwiftDataPracticeHistoryRepositoryTests {
         #expect(decisions == [original])
     }
 
+    @Test func swiftDataLatestMasteryDecisionsReturnOneDeterministicResultPerAssignmentSourceTarget() async throws {
+        let repository = try makeRepository()
+        let older = try Fixtures.masteryDecision(id: "mastery-decision-1", resultingState: .learning)
+        let newer = try masteryDecision(
+            id: "mastery-decision-2",
+            assignmentID: "week-01-day-01-morning-beyer-assignment",
+            sourceID: "beyer-op101-no-63",
+            decidedAt: "2026-09-02T11:00:00Z",
+            resultingState: .mastered
+        )
+        let otherTarget = try masteryDecision(
+            id: "mastery-decision-3",
+            assignmentID: "week-01-day-01-evening-beyer-assignment",
+            sourceID: "beyer-op101-no-63",
+            decidedAt: "2026-09-01T12:00:00Z",
+            resultingState: .stabilizing
+        )
+
+        try await repository.recordMasteryDecision(older)
+        try await repository.recordMasteryDecision(newer)
+        try await repository.recordMasteryDecision(otherTarget)
+
+        let latest = try await repository.latestMasteryDecisions(programmeID: try Fixtures.programme().programmeID)
+
+        #expect(latest.map(\.id.rawValue) == ["mastery-decision-3", "mastery-decision-2"])
+        #expect(latest.map(\.resultingState) == [.stabilizing, .mastered])
+    }
+
+    @Test func swiftDataLatestMasteryDecisionsUseStableIDTieBreakerForEqualTimestamps() async throws {
+        let repository = try makeRepository()
+        let timestamp = "2026-09-02T11:00:00Z"
+        let lowerID = try masteryDecision(
+            id: "mastery-decision-a",
+            assignmentID: "week-01-day-01-morning-beyer-assignment",
+            sourceID: "beyer-op101-no-63",
+            decidedAt: timestamp,
+            resultingState: .learning
+        )
+        let higherID = try masteryDecision(
+            id: "mastery-decision-b",
+            assignmentID: "week-01-day-01-morning-beyer-assignment",
+            sourceID: "beyer-op101-no-63",
+            decidedAt: timestamp,
+            resultingState: .mastered
+        )
+
+        try await repository.recordMasteryDecision(higherID)
+        try await repository.recordMasteryDecision(lowerID)
+
+        let latest = try await repository.latestMasteryDecisions(programmeID: try Fixtures.programme().programmeID)
+
+        #expect(latest == [higherID])
+    }
+
     @Test func swiftDataDeleteSessionCascadesToOwnedRecordsAtomically() async throws {
         let repository = try makeRepository()
         let session = try Fixtures.session()
@@ -160,5 +214,26 @@ struct SwiftDataPracticeHistoryRepositoryTests {
     private func makeRepository() throws -> SwiftDataPracticeHistoryRepository {
         let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
         return SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+    }
+
+    private func masteryDecision(
+        id: String,
+        assignmentID: String,
+        sourceID: String,
+        decidedAt: String,
+        resultingState: MasteryState
+    ) throws -> MasteryDecisionRecord {
+        MasteryDecisionRecord(
+            id: try #require(MasteryDecisionRecordID(id)),
+            programme: try Fixtures.programme(),
+            assignmentID: try #require(PracticeAssignmentID(assignmentID)),
+            sourceID: try #require(ExerciseSourceID(sourceID)),
+            decisionSource: .manual,
+            resultingState: resultingState,
+            masteryRuleID: try #require(MasteryRuleID("mastery-rule-beyer-control-v1")),
+            masteryRuleVersion: 1,
+            reason: nil,
+            decidedAt: try Fixtures.timestamp(decidedAt, timeZoneID: "Europe/London")
+        )
     }
 }

@@ -4,13 +4,17 @@ protocol DocumentAvailabilityProviding {
     func availability(for material: ReferenceMaterial) -> DocumentAvailability
 }
 
+protocol ReferenceMaterialResolving {
+    func resolve(sourceID: ExerciseSourceID) -> ReferenceMaterialResolution
+}
+
 nonisolated struct DefaultUnavailableDocumentAvailabilityProvider: DocumentAvailabilityProviding {
     func availability(for material: ReferenceMaterial) -> DocumentAvailability {
         .unavailable(reason: .notImported)
     }
 }
 
-nonisolated struct ReferenceMaterialResolver {
+nonisolated struct ReferenceMaterialResolver: ReferenceMaterialResolving {
     let catalogue: ReferenceMaterialCatalogue
     let sourceMappings: [ExerciseSourceID: ReferenceMaterialID]
     let availabilityProvider: any DocumentAvailabilityProviding

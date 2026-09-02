@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct Sightlink_PianoApp: App {
+    private let dependencies: AppDependencies
+
+    init() {
+        self.dependencies = AppDependencyFactory.makeProductionDependencies()
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(dependencies: dependencies)
         }
     }
 }

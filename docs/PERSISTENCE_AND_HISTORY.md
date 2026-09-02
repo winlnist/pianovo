@@ -37,6 +37,8 @@ Active programme progress and assignment completions are upserts because each pr
 
 Repository operations are `async throws` so local persistence failures and future adapter implementations can report errors without changing the domain API.
 
+`latestMasteryDecisions(programmeID:)` supports application-facing summary state without loading complete chronological history. It returns the latest applicable mastery decision per assignment/source target. Decisions are returned in deterministic assignment/source target order; when two decisions for the same target have equal timestamps, the lexicographically greater stable mastery-decision ID is treated as latest.
+
 ## Date Strategy
 
 Every temporal record stores:
@@ -66,6 +68,12 @@ To introduce version two later:
 `resetProgrammeProgress` keeps historical sessions, attempts, and reflections. It clears active programme position, assignment completion state, and current mastery/progression state for the programme. It does not silently delete practice history.
 
 `deleteAllPersonalPracticeData` deletes persisted programme progress, assignment completions, sessions, attempts, reflections, and mastery decisions. It does not delete immutable programme seed definitions or bundled source metadata.
+
+## App Bootstrap
+
+Milestone 6F.2 wires production persistence at the application composition root. `AppDependencyFactory` creates the SwiftData `ModelContainer`, creates repository adapters from a `ModelContext`, and keeps the container strongly retained by `AppDependencies`.
+
+If SwiftData bootstrap fails, dependencies expose persistence as unavailable and repository references are nil. The app must not silently substitute in-memory persistence in production because that could make practice data appear saved when it will disappear. Existing non-persistence features should still be constructible so the app can present an honest recovery state in future UI milestones.
 
 ## Testing
 

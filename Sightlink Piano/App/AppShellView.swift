@@ -1,7 +1,12 @@
 import SwiftUI
 
 struct AppShellView: View {
+    let dependencies: AppDependencies
     @State private var selectedDestination: AppDestination? = .practice
+
+    init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -49,5 +54,5 @@ private struct ComingSoonView: View {
 }
 
 #Preview {
-    AppShellView()
+    AppShellView(dependencies: .preview())
 }

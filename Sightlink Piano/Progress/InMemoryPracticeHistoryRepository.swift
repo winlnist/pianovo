@@ -81,6 +81,10 @@ actor InMemoryPracticeHistoryRepository: ProgrammeProgressRepository, PracticeHi
         masteryDecisionsByID[decision.id] = decision
     }
 
+    func latestMasteryDecisions(programmeID: PracticeProgrammeID) async throws -> [MasteryDecisionRecord] {
+        latestMasteryDecisions(from: masteryDecisionsByID.values.filter { $0.programme.programmeID == programmeID })
+    }
+
     func chronologicalHistory() async throws -> [PracticeHistoryEvent] {
         let events: [PracticeHistoryEvent] =
             sessionsByID.values.map(PracticeHistoryEvent.session)
@@ -133,5 +137,40 @@ actor InMemoryPracticeHistoryRepository: ProgrammeProgressRepository, PracticeHi
         case .masteryDecision(let record):
             "3-\(record.id.rawValue)"
         }
+    }
+
+    private func latestMasteryDecisions(from decisions: [MasteryDecisionRecord]) -> [MasteryDecisionRecord] {
+        var latestByTarget: [String: MasteryDecisionRecord] = [:]
+
+        for decision in decisions {
+            let key = masteryTargetKey(decision)
+            guard let current = latestByTarget[key] else {
+                latestByTarget[key] = decision
+                continue
+            }
+
+            if isLaterMasteryDecision(decision, than: current) {
+                latestByTarget[key] = decision
+            }
+        }
+
+        return latestByTarget.values.sorted {
+            masteryTargetKey($0) < masteryTargetKey($1)
+        }
+    }
+
+    private func isLaterMasteryDecision(
+        _ candidate: MasteryDecisionRecord,
+        than current: MasteryDecisionRecord
+    ) -> Bool {
+        if candidate.decidedAt.instant != current.decidedAt.instant {
+            return candidate.decidedAt.instant > current.decidedAt.instant
+        }
+
+        return candidate.id.rawValue > current.id.rawValue
+    }
+
+    private func masteryTargetKey(_ decision: MasteryDecisionRecord) -> String {
+        "\(decision.assignmentID.rawValue)|\(decision.sourceID.rawValue)"
     }
 }

@@ -146,6 +146,17 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Keep unverified rights status explicit as unknown.
 - Defer Today UI, Practice UI changes, PDFKit display, file importing, security-scoped bookmarks, document copying, bundled resources, persistence changes, MIDI/audio analysis, coach/API work, and 6F.2.
 
+### 6F.2 Today View Model and Dependency Composition - Completed
+
+- Add a Today-facing presentation state and `TodayViewModel` without implementing the Today screen UI.
+- Compose the Pianovo seed programme, persisted active progress, assignment completions, latest mastery decisions, reference-material resolution, document availability, and deterministic temporal context.
+- Keep first launch as an explicit programme-not-started state; do not create active progress or advance week/day from calendar date.
+- Add production dependency composition that retains the SwiftData `ModelContainer` and exposes persistence-unavailable state if bootstrap fails.
+- Add a narrow latest-mastery repository query with deterministic assignment/source grouping and stable-ID tie-breaking for equal timestamps.
+- Keep time-of-day presentational only: morning/evening may be suggested, but both remain visible and no persistence is written.
+- Present Beyer Op. 101 No. 63 with distinct required Prima and Seconda components for Today state while deferring component-level progress/mastery.
+- Defer Today UI, Start Programme action, session lifecycle, PDF display/import, component-level completion, MIDI/audio analysis, coach/API, cloud sync, and 6F.3.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.

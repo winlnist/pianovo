@@ -8,11 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    let dependencies: AppDependencies
+
+    init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+    }
+
     var body: some View {
-        AppShellView()
+        AppShellView(dependencies: dependencies)
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(dependencies: .preview())
 }

@@ -121,6 +121,14 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
         try context.save()
     }
 
+    func latestMasteryDecisions(programmeID: PracticeProgrammeID) async throws -> [MasteryDecisionRecord] {
+        let decisions = try fetchMasteryDecisionModels()
+            .filter { $0.programmeID == programmeID.rawValue }
+            .compactMap(Self.masteryDecision)
+
+        return latestMasteryDecisions(from: decisions)
+    }
+
     func chronologicalHistory() async throws -> [PracticeHistoryEvent] {
         let events: [PracticeHistoryEvent] =
             try fetchSessionModels().compactMap(Self.session).map(PracticeHistoryEvent.session)
@@ -217,6 +225,41 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
         case .masteryDecision(let record):
             "3-\(record.id.rawValue)"
         }
+    }
+
+    private func latestMasteryDecisions(from decisions: [MasteryDecisionRecord]) -> [MasteryDecisionRecord] {
+        var latestByTarget: [String: MasteryDecisionRecord] = [:]
+
+        for decision in decisions {
+            let key = masteryTargetKey(decision)
+            guard let current = latestByTarget[key] else {
+                latestByTarget[key] = decision
+                continue
+            }
+
+            if isLaterMasteryDecision(decision, than: current) {
+                latestByTarget[key] = decision
+            }
+        }
+
+        return latestByTarget.values.sorted {
+            masteryTargetKey($0) < masteryTargetKey($1)
+        }
+    }
+
+    private func isLaterMasteryDecision(
+        _ candidate: MasteryDecisionRecord,
+        than current: MasteryDecisionRecord
+    ) -> Bool {
+        if candidate.decidedAt.instant != current.decidedAt.instant {
+            return candidate.decidedAt.instant > current.decidedAt.instant
+        }
+
+        return candidate.id.rawValue > current.id.rawValue
+    }
+
+    private func masteryTargetKey(_ decision: MasteryDecisionRecord) -> String {
+        "\(decision.assignmentID.rawValue)|\(decision.sourceID.rawValue)"
     }
 }
 

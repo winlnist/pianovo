@@ -38,6 +38,7 @@ protocol PracticeHistoryRepository {
     func recordAttempt(_ attempt: PerformanceAttemptRecord) async throws
     func recordReflection(_ reflection: StudentReflectionRecord) async throws
     func recordMasteryDecision(_ decision: MasteryDecisionRecord) async throws
+    func latestMasteryDecisions(programmeID: PracticeProgrammeID) async throws -> [MasteryDecisionRecord]
     func chronologicalHistory() async throws -> [PracticeHistoryEvent]
     func deleteSession(id: PracticeSessionRecordID) async throws
     func deleteAllPersonalPracticeData() async throws

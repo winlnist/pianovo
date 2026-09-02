@@ -109,6 +109,14 @@ Sightlink_PianoApp
   -> SightReadingPageView
 ```
 
+Milestone 6F.2 adds explicit application dependency composition without changing the visible Practice destination. `Sightlink_PianoApp` creates `AppDependencies`, `ContentView` passes them into `AppShellView`, and Practice still constructs the existing `PracticeScreen`.
+
+The future Today screen will consume a `@MainActor` `TodayViewModel` that loads presentation state from the Pianovo seed programme, persisted progress, latest mastery decisions, reference-material resolution, document availability, and deterministic temporal context. This is application-facing presentation state only; it does not start sessions, mutate progress, display PDFs, or perform MIDI/audio analysis.
+
+Persisted active programme progress is authoritative. Today state does not advance week/day from calendar date, and first launch remains an explicit programme-not-started state until a future UI provides a Start Programme action.
+
+Production dependency bootstrap creates and strongly retains the SwiftData `ModelContainer` for the dependency lifetime. If container creation fails, persistence is represented as unavailable; the app does not crash and does not silently switch to temporary in-memory storage.
+
 ### MIDI Adapter
 
 MIDI is an input adapter:
@@ -194,6 +202,8 @@ Milestone 6E adds a Progress domain and a local SwiftData persistence adapter. P
 Programme progress stores student-specific state: active programme ID/version, current week/day references, assignment completions, sessions, attempts, reflections, and mastery decisions. It does not duplicate the immutable twelve-week seed programme. `ProgrammeProgressSnapshot` is assembled by repositories as a read model; assignment completion records are the authoritative completion source.
 
 The SwiftData adapter is `@MainActor` because `ModelContext` is actor-confined. Domain repository protocols are `async throws`, allowing adapters to report validation, duplicate identity, not-found, and persistence failures without exposing SwiftData.
+
+The latest mastery repository query returns one decision per assignment/source target for a programme. Newer timestamps win; if timestamps are equal, the lexicographically greater stable mastery-decision ID is the deterministic tie-breaker.
 
 ### Reference Materials
 
