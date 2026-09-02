@@ -26,6 +26,7 @@ High-level boundaries:
 - Music Domain: pitches, notes, chords, clefs, staff placement, rhythm, score events, stable event identifiers.
 - Practice Engine: exercise state, expected answers, matching, scoring, session progress.
 - Programme Domain: data-driven practice programme structure, source references, mastery rules, and validation.
+- Progress/Persistence: local-first student progress records, repository protocols, and persistence adapters separated from Programme and Music domains.
 - Rendering Adapters: convert domain notation into renderer-specific view models.
 - MIDI Adapter: observes CoreMIDI and converts MIDI messages into domain input events.
 - App/UI Layer: SwiftUI screens, app state composition, navigation, accessibility, user interaction.
@@ -53,6 +54,7 @@ Version 0.1 currently includes:
 - MusicXML import foundation for a small supported subset mapped into the Full Score Domain.
 - Debug-only Verovio full-score rendering for MusicXML fixtures.
 - Framework-independent programme domain and twelve-week Pianovo seed structure.
+- Local persistence and history foundation for student progress, verified through repository tests.
 
 Version 0.1 does not include:
 
@@ -91,6 +93,7 @@ Hot-plug/device-refresh code exists, but reconnect behavior has not yet been har
 - [docs/SCORE_DOMAIN.md](docs/SCORE_DOMAIN.md): full score domain foundation and boundaries.
 - [docs/PRACTICE_ENGINE.md](docs/PRACTICE_ENGINE.md): practice state, matching, scoring, and statistics.
 - [docs/PROGRAMME_DOMAIN.md](docs/PROGRAMME_DOMAIN.md): programme structure, source references, mastery rules, validation, and seed-data boundaries.
+- [docs/PERSISTENCE_AND_HISTORY.md](docs/PERSISTENCE_AND_HISTORY.md): progress records, local persistence boundaries, schema versioning, and deletion/reset semantics.
 - [docs/IMPORT_PIPELINE.md](docs/IMPORT_PIPELINE.md): MusicXML and future PDF/photo recognition plan.
 
 ## Development Notes

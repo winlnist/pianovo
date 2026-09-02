@@ -185,6 +185,12 @@ Progress data is separate from musical score data.
 
 Progress records should reference stable domain event identifiers rather than embedding score content. This allows practice results to point to specific notes, chords, or events across sessions.
 
+Milestone 6E adds a Progress domain and a local SwiftData persistence adapter. Progress records and repository protocols remain Foundation-only and do not import SwiftData, Core Data, SwiftUI, MIDI, PDFKit, Verovio, networking, or renderer frameworks. SwiftData `@Model` types and `ModelContext` usage are isolated inside `Persistence/SwiftData`.
+
+Programme progress stores student-specific state: active programme ID/version, current week/day references, assignment completions, sessions, attempts, reflections, and mastery decisions. It does not duplicate the immutable twelve-week seed programme. `ProgrammeProgressSnapshot` is assembled by repositories as a read model; assignment completion records are the authoritative completion source.
+
+The SwiftData adapter is `@MainActor` because `ModelContext` is actor-confined. Domain repository protocols are `async throws`, allowing adapters to report validation, duplicate identity, not-found, and persistence failures without exposing SwiftData.
+
 ## Module Direction
 
 The initial Xcode project has a single app target named Sightlink Piano. As the code grows, prefer grouping by responsibility before adding separate packages or frameworks.

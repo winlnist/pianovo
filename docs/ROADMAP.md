@@ -123,6 +123,17 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Model mastery learning states without treating manual override as a mastery state.
 - Defer persistence, progress records, mastery evaluation history, MIDI analysis, score-source mappings, PDFs, audio, coach functionality, and SwiftUI integration.
 
+### 6E Local Persistence and History Foundation - Completed
+
+- Add Foundation-only progress records and repository protocols for active programme progress, assignment completion state, practice sessions, performance attempts, student reflections, and mastery decisions.
+- Keep Programme Domain and Music Domain independent from SwiftData and other persistence frameworks.
+- Add a SwiftData V1 schema, migration-plan scaffold, and local repository adapter inside `Persistence/SwiftData`.
+- Store programme ID/version and stable week/day/block/assignment/source references rather than duplicating immutable seed programme content.
+- Store absolute timestamps, time-zone identifiers, supported calendar identifiers, and creation-time local-day keys for temporal records.
+- Define duplicate-ID write semantics, structured validation failures, reset behaviour, cascade session deletion, and explicit all-data deletion.
+- Add deterministic in-memory repository tests and SwiftData in-memory `ModelContainer` tests.
+- Defer SwiftUI history screens, app-root persistence wiring, automatic mastery evaluation, MIDI/audio capture, score assessment, coach/API integration, cloud sync, export UI, and 6F work.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.

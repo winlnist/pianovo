@@ -47,10 +47,18 @@ secrets.*
 *.cer
 
 # Personal practice data and recordings
+Reference Materials/
 Recordings/
 PracticeRecordings/
 PracticeHistory/
 Exports/
+PracticeExports/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.store
+*.store-shm
+*.store-wal
 *.caf
 *.m4a
 *.mp3
