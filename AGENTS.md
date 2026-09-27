@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guidance for future Codex work on Sightlink Piano.
+Guidance for future Codex work on Pianovo.
 
 ## Before Implementing
 

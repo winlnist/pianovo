@@ -1,12 +1,12 @@
-# Sightlink Piano
+# Pianovo
 
-Sightlink Piano is a native SwiftUI piano-learning app for iPhone and iPad. Its purpose is to help users practice music reading and piano by showing notation, listening to a physical MIDI piano, and comparing what the user plays against the expected musical material.
+Pianovo is a native SwiftUI piano-learning app for iPhone and iPad. Its purpose is to help users practice music reading and piano by showing notation, listening to a physical MIDI piano, and comparing what the user plays against the expected musical material.
 
 The current production practice experience is continuous single-staff sight reading. Users choose Treble Reading or Bass Reading, read ordered note events across a paper-like music page, and play each note on a physical MIDI piano. Correct MIDI input advances to the next event; incorrect input keeps the current event active. A fresh exercise is generated automatically after the final event.
 
 ## Product Direction
 
-Sightlink Piano should grow into an App Store-quality practice app that can support:
+Pianovo should grow into an App Store-quality practice app that can support:
 
 - Treble and bass staff reading.
 - Configurable note ranges, initially around C2-C6.
@@ -79,7 +79,7 @@ Version 0.1 does not include:
 Physical MIDI input has been confirmed working on iPad. The most reliable tested startup sequence is:
 
 ```text
-app not running -> connect cable -> power piano -> launch Sightlink Piano
+app not running -> connect cable -> power piano -> launch Pianovo
 ```
 
 Hot-plug/device-refresh code exists, but reconnect behavior has not yet been hardened or fully validated.

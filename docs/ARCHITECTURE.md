@@ -1,6 +1,6 @@
 # Architecture
 
-Sightlink Piano should use a clean architecture that keeps musical truth, practice behavior, input adapters, rendering, persistence, and UI separate.
+Pianovo should use a clean architecture that keeps musical truth, practice behavior, input adapters, rendering, persistence, and UI separate.
 
 ## Dependency Rule
 
@@ -102,14 +102,14 @@ Production practice UI presents a paper-like music sheet as the stable base laye
 Current app launch flow:
 
 ```text
-Sightlink_PianoApp
+PianovoApp
   -> ContentView
   -> PracticeScreen
   -> PracticeViewModel / PracticeSession
   -> SightReadingPageView
 ```
 
-Milestone 6F.2 adds explicit application dependency composition without changing the visible Practice destination. `Sightlink_PianoApp` creates `AppDependencies`, `ContentView` passes them into `AppShellView`, and Practice still constructs the existing `PracticeScreen`.
+Milestone 6F.2 adds explicit application dependency composition without changing the visible Practice destination. `PianovoApp` creates `AppDependencies`, `ContentView` passes them into `AppShellView`, and Practice still constructs the existing `PracticeScreen`.
 
 The future Today screen will consume a `@MainActor` `TodayViewModel` that loads presentation state from the Pianovo seed programme, persisted progress, latest mastery decisions, reference-material resolution, document availability, and deterministic temporal context. This is application-facing presentation state only; it does not start sessions, mutate progress, display PDFs, or perform MIDI/audio analysis.
 
@@ -143,7 +143,7 @@ Physical piano
   -> PracticeSession
 ```
 
-Physical MIDI input has been confirmed working on iPad using this reliable startup sequence: app not running, connect cable, power piano, then launch Sightlink Piano. Hot-plug/device-refresh code exists, but reconnect behavior has not been hardened or fully validated.
+Physical MIDI input has been confirmed working on iPad using this reliable startup sequence: app not running, connect cable, power piano, then launch Pianovo. Hot-plug/device-refresh code exists, but reconnect behavior has not been hardened or fully validated.
 
 ### Rendering
 
@@ -217,7 +217,7 @@ Beyer Op. 101 No. 63 is represented as one logical material with distinct requir
 
 ## Module Direction
 
-The initial Xcode project has a single app target named Sightlink Piano. As the code grows, prefer grouping by responsibility before adding separate packages or frameworks.
+The Xcode project has a single app target named Pianovo. As the code grows, prefer grouping by responsibility before adding separate packages or frameworks.
 
 Likely future groups:
 

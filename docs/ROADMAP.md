@@ -1,6 +1,6 @@
 # Roadmap
 
-The roadmap keeps Sightlink Piano small at first while preserving a path toward full interactive score practice.
+The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
 ## 0. Project Foundation - Completed
 
@@ -156,6 +156,12 @@ The roadmap keeps Sightlink Piano small at first while preserving a path toward 
 - Keep time-of-day presentational only: morning/evening may be suggested, but both remain visible and no persistence is written.
 - Present Beyer Op. 101 No. 63 with distinct required Prima and Seconda components for Today state while deferring component-level progress/mastery.
 - Defer Today UI, Start Programme action, session lifecycle, PDF display/import, component-level completion, MIDI/audio analysis, coach/API, cloud sync, and 6F.3.
+
+### Technical Project Rename - Completed
+
+- Rename the former Sightlink Piano project, targets, scheme, modules, bundle identifiers, and source/test folders to Pianovo/PianovoTests.
+- Share the Pianovo scheme for development and CI while preserving implementation, resources, stable domain identifiers, and the Verovio package configuration.
+- Keep the Milestone 6C technical-name preservation above as historical scope; Today UI remains deferred to 6F.3.
 
 ## 7. Interactive Song Practice
 

@@ -4,7 +4,7 @@ Milestone 6F.1 adds a logical reference-material catalogue. It does not add PDFs
 
 ## Boundary
 
-The app source folder `Sightlink Piano/ReferenceMaterials/` contains Swift source code only. The separate local `Reference Materials/` folder at the project root is ignored by Git and is available only for inspection during development.
+The app source folder `Pianovo/ReferenceMaterials/` contains Swift source code only. The separate local `Reference Materials/` folder at the project root is ignored by Git and is available only for inspection during development.
 
 Production catalogue data must use stable logical identifiers and descriptive metadata. It must not store permanent absolute development-machine paths or assume that local inspection files exist on an iPad.
 

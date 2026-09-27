@@ -1,12 +1,12 @@
 # Notation Rendering
 
-Sightlink Piano's Version 0.1 notation renderer is a lightweight SwiftUI/Core Graphics renderer for generated sight-reading practice. It is separate from the Milestone 6B full-score rendering path.
+Pianovo's Version 0.1 notation renderer is a lightweight SwiftUI/Core Graphics renderer for generated sight-reading practice. It is separate from the Milestone 6B full-score rendering path.
 
 ## SMuFL Font
 
 The renderer uses Bravura as its local SMuFL-compatible music font.
 
-- Font file: `Sightlink Piano/Resources/Fonts/Bravura.otf`
+- Font file: `Pianovo/Resources/Fonts/Bravura.otf`
 - Font name: `Bravura`
 - Version found in font metadata: `1.392`
 - Copyright holder in font metadata: Steinberg Media Technologies GmbH

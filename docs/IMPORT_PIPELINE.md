@@ -1,6 +1,6 @@
 # Import Pipeline
 
-Sightlink Piano should eventually support importing structured songs and recognizing notation from PDFs or photos. These capabilities are not part of Version 0.1.
+Pianovo should eventually support importing structured songs and recognizing notation from PDFs or photos. These capabilities are not part of Version 0.1.
 
 ## Goals
 

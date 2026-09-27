@@ -1,6 +1,6 @@
 # Music Domain
 
-The Music Domain is the framework-independent source of truth for musical concepts in Sightlink Piano.
+The Music Domain is the framework-independent source of truth for musical concepts in Pianovo.
 
 It must not depend on SwiftUI, CoreMIDI, Verovio, networking, persistence, or other infrastructure frameworks.
 

@@ -4,9 +4,9 @@
 
 The combined app's working user-facing name is Pianovo, with the tagline "Practice measured. Progress earned."
 
-Pianovo is a working brand name, not legal or trademark clearance. Keep the name centralized and easy to change until clearance is complete. Do not rename technical identifiers such as the Xcode project, targets, schemes, Swift module, bundle identifier, repository folder, or source file prefixes without a dedicated rename milestone.
+Pianovo is a working brand name, not legal or trademark clearance. Keep the name centralized and easy to change until clearance is complete. The dedicated technical rename uses Pianovo for the Xcode project, shared scheme, app target/module, source folder, and app entry point, and PianovoTests for the test target/module and folder. Bundle identifiers are `com.fredericinthavanh.Pianovo` and `com.fredericinthavanh.PianovoTests`. Further technical renames require a dedicated task.
 
-Sightlink Piano is a native SwiftUI app for iPhone and iPad that helps piano learners practice reading music and playing the correct notes on a physical MIDI keyboard.
+Pianovo is a native SwiftUI app for iPhone and iPad that helps piano learners practice reading music and playing the correct notes on a physical MIDI keyboard.
 
 ## Core Purpose
 
@@ -53,7 +53,7 @@ Near-term work should continue strengthening the current reading loop before exp
 
 ## Long-Term Vision
 
-Over time, Sightlink Piano should grow into an App Store-quality practice app with multiple practice activities:
+Over time, Pianovo should grow into an App Store-quality practice app with multiple practice activities:
 
 - Grand-staff and two-hand practice.
 - Chord reading.
