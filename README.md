@@ -113,6 +113,8 @@ xcodebuild \
 
 On 27 September 2026, the renamed project completed a clean build and all **175 tests across 19 suites passed** using an iPad Pro 11-inch (M5) simulator. The portfolio captures were produced from the running app on iPadOS 27.0.
 
+The current Practice experience was also manually verified on 27 September 2026 using a physical iPad Pro with an M5 processor and a Yamaha P-45 digital piano connected directly by a USB-B to USB-C cable for USB MIDI. Pianovo received the played notes, correctly played notes advanced the sight-reading exercise, and session statistics updated, confirming that the core Practice workflow operated successfully on physical hardware.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
