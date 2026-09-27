@@ -28,7 +28,7 @@ A teacher who can eventually review a student’s practice history, assign or ad
 
 ## Current user-facing experience
 
-The app launches into a Pianovo navigation shell with Practice selected. Practice is a working continuous single-staff sight-reading experience:
+The app launches into Today, where learners explicitly start the programme at Week 1 Day 1 and view the saved day. Morning, Evening, recovery/reflection, saved assignment/mastery status, and honest material availability are presented without automatic day advancement. Practice is a working continuous single-staff sight-reading experience:
 
 - Choose Treble Reading or Bass Reading.
 - Read a generated 64-note exercise arranged into measures and responsive systems.
@@ -38,7 +38,7 @@ The app launches into a Pianovo navigation shell with Practice selected. Practic
 - Receive a new exercise after completing the current one.
 - Review session-only correct, wrong, attempt, accuracy, streak, and completion values.
 
-The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Today, Progress, Library, History, Ask My Teacher, and Settings currently show “coming later” states.
+The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, Library, History, Ask My Teacher, and Settings currently show “coming later” states.
 
 ## Implemented but not yet exposed as complete workflows
 
@@ -48,13 +48,18 @@ The paper-like score remains stable while an auto-hiding HUD exposes MIDI status
 - A logical catalogue for Beyer and supporting practice material; the source documents are not bundled or openable in the app.
 - A limited MusicXML importer and a development-only Verovio fixture renderer.
 
-Current practice sessions do not yet write to the progress/history repositories. The presence of these foundations must not be presented as a working Progress, History, Today, document-library, or imported-song experience.
+Milestone 6F.4 connects only the generated sight-reading assignment to an explicit session flow: preparation, Start Session, MIDI Practice, End & Save, immediate summary, and return to Today. Preparation shows the assignment goal and planned duration and lets the learner choose Treble/Bass and a natural-note range. Configuration and reset are locked while the assigned session is active. Other assignments remain informational; Beyer is never substituted with random notation.
+
+End & Save records one stopped session with its stable programme/week/day/block/assignment/source context and timestamps. Numeric statistics are temporary feedback in the immediate summary, not saved history. Ending does not mark an assignment complete, evaluate mastery, create attempts/reflections, or advance programme position. Standalone Practice remains available without persistence.
+
+Temporary inactivity suspends MIDI input. Backgrounding freezes the session at the observed time; returning offers save or discard, not resume. Discard performs no write. Force-quit recovery is not supported: unsaved sessions may be lost. No duration is invented after termination.
+
+The remaining foundations must not be presented as working Progress, History, document-library, or imported-song experiences.
 
 ## Near-term product direction
 
-- Add an explicit Start Programme action and native Today screen.
-- Connect assigned work to the existing Practice experience.
-- Persist session and assignment outcomes.
+- Extend assigned practice only when its source can be presented honestly.
+- Add explicit assignment-completion and progress workflows separately from session recording.
 - Present user-imported or legally distributable reference material.
 - Add score-aligned MIDI timing and correctness analysis.
 - Expose progress in a way that is useful to both learner and teacher.
@@ -81,8 +86,9 @@ Current practice sessions do not yet write to the progress/history repositories.
 ## Current limitations and non-goals
 
 - No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
-- No persisted statistics in the working Practice screen.
-- No functional Today, Progress, Library, History, teacher, or settings workflows.
+- No persisted numeric statistics; assigned sight-reading saves session context and times only.
+- No functional Progress, Library, History, teacher, or settings workflows.
+- No assignment-completion controls, automatic mastery, generic guided sessions, or durable active-session recovery.
 - No production MusicXML file picker or imported-song practice.
 - No PDF/photo import, optical music recognition, or score correction UI.
 - No MIDI recording timeline, tempo assessment, audio analysis, or playback.

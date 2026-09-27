@@ -4,13 +4,13 @@ Pianovo uses a layered architecture that keeps musical truth, practice behavior,
 
 ## Current implementation boundary
 
-The app opens in Today, with an explicit programme start and a read-only view of the saved day. Practice remains directly available as the existing continuous single-staff experience. Progress/history, document access, MusicXML, and full-score rendering are foundations rather than complete learner-facing workflows.
+The app opens in Today, with explicit programme start, saved-day presentation, and an assigned generated sight-reading session action. Practice remains directly available as the existing continuous single-staff experience. Progress/history, document access, MusicXML, and full-score rendering are foundations rather than complete learner-facing workflows.
 
 This boundary matters when describing the product:
 
-- **Working UI:** Today programme start and saved-day presentation; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
+- **Working UI:** Today programme start, saved-day presentation, and assigned sight-reading session recording; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
 - **Implemented foundations:** twelve-week programme, SwiftData repositories, Today presentation state, logical reference-material resolution, limited MusicXML import, and development-facing Verovio rendering.
-- **Planned UI:** persisted Practice integration, Progress, Library, History, teacher collaboration, document import, and interactive songs.
+- **Planned UI:** assignment completion, broader assigned practice, Progress, Library, History, teacher collaboration, document import, and interactive songs.
 
 ## Dependency Rule
 
@@ -134,6 +134,14 @@ Persisted active programme progress is authoritative. `loadIfNeeded()` loads onl
 `startProgramme()` re-reads existing progress before writing. Existing positions, including invalid ones, are never reset; they are reloaded and validated for presentation. With no active progress, the action resolves the first numbered week/day from the seed and saves only `ActiveProgrammeProgress`, timestamped with the injected clock and local temporal context. It then reloads Today. The separate ready/starting/failed action state prevents concurrent taps and supports retries, including an ambiguous save followed by a fresh read. The guard covers the single screen-owned view model; future independent progress writers would require an atomic repository operation.
 
 Starting creates no sessions, attempts, completions, reflections, or mastery decisions. Calendar date, midnight, and daylight-saving transitions never advance the saved position. Practice, its MIDI path, and repository adapters remain unchanged. Deterministic previews use in-memory repositories only; no production personal data is written.
+
+Milestone 6F.4 adds an application-layer `AssignmentPracticeCoordinator` and an immutable `AssignmentPracticeContext`, built from the full Today hierarchy rather than parsed identifier strings. Eligibility requires the generated sight-reading source and sight-reading category. The app shell owns a full-screen presentation; its screen owns a stable coordinator and injected PracticeViewModel. Standalone `PracticeScreen()` remains independent of persistence.
+
+Preparation configures the existing reading mode/range. Explicit start allocates one injected identity and timestamp without writing history. Active assigned practice locks reset-producing controls. MIDI input is admitted only while the screen is visible, the app is active, and the coordinator is active. The screen owns the MIDI service; the coordinator owns lifecycle and saving, not rendering or MIDI infrastructure.
+
+End & Save freezes statistics and end time before suspension, then inserts one `.stopped` session. Concurrent finish/retry calls are gated. Save failures retain the exact pending record; duplicate reconciliation succeeds only for an exact record read from durable history. Negative clock movement produces a structured failure. Numeric statistics remain temporary and never enter persistence.
+
+Temporary inactivity suspends input. Backgrounding freezes the observed end and transitions to interrupted. Foreground return offers save/discard; it does not resume or count background time. Exit is explicit and interactive dismissal is blocked during active/unsaved work. Force-quit recovery is deferred. No session action writes completion, programme progress, mastery, attempts, or reflections.
 
 Production dependency bootstrap creates and strongly retains the SwiftData `ModelContainer` for the dependency lifetime. If container creation fails, persistence is represented as unavailable; the app does not crash and does not silently switch to temporary in-memory storage.
 
@@ -273,4 +281,4 @@ The current suites cover:
 - Reference-material resolution and Beyer Prima/Seconda metadata.
 - Today presentation state and dependency bootstrap.
 
-The verified portfolio baseline on 27 September 2026 is a clean app build with 175 tests passing across 19 suites. Dedicated UI automation and screenshot regression testing remain future work.
+The verified 6F.3 baseline is a clean app build with 191 tests passing across 20 suites. Milestone 6F.4 adds focused context, coordinator, and persistence-failure tests. Dedicated UI automation and screenshot regression testing remain future work.

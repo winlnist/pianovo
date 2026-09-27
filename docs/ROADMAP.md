@@ -2,7 +2,7 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
-Milestone 6F.3 adds Today presentation and explicit programme start on top of the 6F.2 state foundation and technical Pianovo rename. Today shows the saved day; Practice remains the working MIDI reading experience. Session lifecycle and completion recording remain deferred.
+Milestone 6F.3 adds Today presentation and explicit programme start on top of the 6F.2 state foundation and technical Pianovo rename. Today shows the saved day; Practice remains the working MIDI reading experience. Milestone 6F.4 connects generated sight-reading assignments to finish-only session recording; assignment completion remains deferred.
 
 ## 0. Project Foundation - Completed
 
@@ -178,6 +178,19 @@ Milestone 6F.3 adds Today presentation and explicit programme start on top of th
 - Guard overlapping starts and loads, re-read before saving, preserve existing positions, and use injected temporal context.
 - Add deterministic start/lifecycle tests and in-memory previews for first launch, practice, recovery, material availability, and persistence failure.
 - Defer session lifecycle, completion actions, PDF presentation, automatic mastery evaluation, teacher features, and cloud sync.
+
+### 6F.4 Assigned Sight-Reading Session Lifecycle
+
+- Route only the supported generated sight-reading source from Today to preparation and the existing MIDI Practice surface.
+- Preserve the complete stable programme/week/day/block/assignment/source context without parsing IDs.
+- Configure Treble/Bass and natural-note range before explicit Start Session; lock configuration/reset during the session.
+- Keep active sessions in memory and save one immutable `.stopped` record only on End & Save.
+- Show actual frozen statistics immediately, explicitly without persisting numeric results.
+- Serialize start/finish/retry, retain exact failed records, and reconcile ambiguous duplicates against durable history.
+- Suspend input during inactivity; freeze on background and offer save/discard on return without counting background time.
+- Use the unchanged V1 schema and insert-only session semantics, with isolated insertion rollback and separate-context verification.
+- Preserve standalone Practice and keep unsupported assignments informational.
+- Defer force-quit recovery, assignment completion, mastery, programme advancement, generic sessions, PDFs, raw MIDI, analysis, History/Progress UI, teacher/API/cloud work, and 6F.5.
 
 ## 7. Interactive Song Practice
 

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AppShellView: View {
     let dependencies: AppDependencies
+    @State private var assignmentPractice: AssignmentPracticeContext?
     @State private var selectedDestination: AppDestination? = .today
 
     init(dependencies: AppDependencies) {
@@ -27,6 +28,9 @@ struct AppShellView: View {
             destinationView
                 .navigationTitle((selectedDestination ?? .today).title)
         }
+        .fullScreenCover(item: $assignmentPractice) { context in
+            AssignmentPracticeScreen(context: context, dependencies: dependencies)
+        }
     }
 
     @ViewBuilder
@@ -35,7 +39,10 @@ struct AppShellView: View {
         case .practice:
             PracticeScreen()
         case .today:
-            TodayScreen(dependencies: dependencies)
+            TodayScreen(dependencies: dependencies) { context in
+                guard assignmentPractice == nil else { return }
+                assignmentPractice = context
+            }
         case .progress, .library, .history, .askMyTeacher, .settings:
             ComingSoonView(destination: selectedDestination ?? .today)
         }

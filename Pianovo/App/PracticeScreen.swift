@@ -5,15 +5,24 @@ struct PracticeScreen: View {
     @StateObject private var viewModel: PracticeViewModel
     @StateObject private var midiService: MIDIInputService
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var isVisible = false
+    private let locksConfiguration: Bool
+    private let assignedInput: ((MIDIInputEvent) -> Void)?
     @State private var isHUDVisible = true
     @State private var hideHUDTask: Task<Void, Never>?
 
     init() {
+        locksConfiguration = false
+        assignedInput = nil
         _viewModel = StateObject(wrappedValue: PracticeViewModel())
         _midiService = StateObject(wrappedValue: MIDIInputService())
     }
 
-    init(viewModel: PracticeViewModel, midiService: MIDIInputService = MIDIInputService()) {
+    init(viewModel: PracticeViewModel, midiService: MIDIInputService = MIDIInputService(),
+         locksConfiguration: Bool = false, assignedInput: ((MIDIInputEvent) -> Void)? = nil) {
+        self.locksConfiguration = locksConfiguration
+        self.assignedInput = assignedInput
         _viewModel = StateObject(wrappedValue: viewModel)
         _midiService = StateObject(wrappedValue: midiService)
     }
@@ -32,12 +41,15 @@ struct PracticeScreen: View {
         }
         .background(Color(.systemGroupedBackground))
         .onReceive(midiService.$lastEvent.compactMap { $0 }) { event in
-            viewModel.submit(event)
+            guard isVisible, scenePhase == .active else { return }
+            if let assignedInput { assignedInput(event) } else { viewModel.submit(event) }
         }
         .onAppear {
+            isVisible = true
             scheduleHUDHide()
         }
         .onDisappear {
+            isVisible = false
             hideHUDTask?.cancel()
         }
     }
@@ -93,14 +105,14 @@ struct PracticeScreen: View {
         Group {
             if horizontalSizeClass == .regular {
                 HStack(alignment: .top, spacing: 12) {
-                    modeControls
-                    rangeControls
+                    modeControls.disabled(locksConfiguration)
+                    rangeControls.disabled(locksConfiguration)
                     statistics
                 }
             } else {
                 VStack(alignment: .leading, spacing: 12) {
-                    modeControls
-                    rangeControls
+                    modeControls.disabled(locksConfiguration)
+                    rangeControls.disabled(locksConfiguration)
                     statistics
                 }
             }

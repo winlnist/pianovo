@@ -4,11 +4,15 @@ struct TodayScreen: View {
     @StateObject private var viewModel: TodayViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
-    init(dependencies: AppDependencies) {
+    private let onPractise: ((AssignmentPracticeContext) -> Void)?
+
+    init(dependencies: AppDependencies, onPractise: ((AssignmentPracticeContext) -> Void)? = nil) {
+        self.onPractise = onPractise
         _viewModel = StateObject(wrappedValue: TodayViewModel(dependencies: dependencies))
     }
 
     init(viewModel: TodayViewModel) {
+        onPractise = nil
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -25,7 +29,8 @@ struct TodayScreen: View {
                     case .loaded(let day):
                         TodayDayView(
                             day: day,
-                            usesColumns: geometry.size.width >= 780 && !dynamicTypeSize.isAccessibilitySize
+                            usesColumns: geometry.size.width >= 780 && !dynamicTypeSize.isAccessibilitySize,
+                            onPractise: onPractise
                         )
                     case .noProgrammeAvailable(let failure), .failure(let failure):
                         failureView(failure)
@@ -116,6 +121,7 @@ struct TodayScreen: View {
 private struct TodayDayView: View {
     let day: TodayLoadedState
     let usesColumns: Bool
+    let onPractise: ((AssignmentPracticeContext) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -148,7 +154,7 @@ private struct TodayDayView: View {
             }
 
             if day.dayKind == .recoveryReflection {
-                TodayBlockSection(title: "Recovery and reflection", symbol: "leaf", blocks: day.recoveryBlocks)
+                TodayBlockSection(title: "Recovery and reflection", symbol: "leaf", blocks: day.recoveryBlocks, day: day, onPractise: onPractise)
             } else if usesColumns {
                 HStack(alignment: .top, spacing: 24) {
                     morning
@@ -158,18 +164,18 @@ private struct TodayDayView: View {
                 morning
                 evening
             }
-            Text("This page shows your plan and any saved status. Recording sessions, completing assignments, and opening documents will come in a later milestone.")
+            Text("This page shows your plan and any saved status. Generated sight-reading supports saved sessions. Assignment completion and document opening are not available yet.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
     }
 
     private var morning: some View {
-        TodayBlockSection(title: "Morning", symbol: "sun.max", blocks: day.morningBlocks)
+        TodayBlockSection(title: "Morning", symbol: "sun.max", blocks: day.morningBlocks, day: day, onPractise: onPractise)
     }
 
     private var evening: some View {
-        TodayBlockSection(title: "Evening", symbol: "moon", blocks: day.eveningBlocks)
+        TodayBlockSection(title: "Evening", symbol: "moon", blocks: day.eveningBlocks, day: day, onPractise: onPractise)
     }
 }
 
@@ -177,6 +183,8 @@ private struct TodayBlockSection: View {
     let title: String
     let symbol: String
     let blocks: [TodayPracticeBlockState]
+    let day: TodayLoadedState
+    let onPractise: ((AssignmentPracticeContext) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -199,6 +207,17 @@ private struct TodayBlockSection: View {
                     }
                     ForEach(block.assignments) { assignment in
                         TodayAssignmentView(assignment: assignment)
+                        if let context = AssignmentPracticeContext(day: day, blockID: block.id, assignmentID: assignment.id) {
+                            Button("Practise sight-reading") { onPractise?(context) }
+                                .buttonStyle(.borderedProminent)
+                                .frame(minHeight: 44)
+                                .disabled(onPractise == nil)
+                                .accessibilityLabel("Practise sight-reading, \(assignment.title)")
+                        } else {
+                            Text("Assigned practice for this material is not available inside Pianovo yet.")
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
                 .todayCard()

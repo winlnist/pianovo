@@ -78,3 +78,13 @@ If SwiftData bootstrap fails, dependencies expose persistence as unavailable and
 ## Testing
 
 Milestone 6E uses both an in-memory repository and SwiftData tests with an in-memory `ModelContainer`. Tests cover duplicate IDs, validation failures, local-day stability, reset semantics, cascade deletion, schema versioning, and repository round trips without creating persistent personal data files.
+
+## Assigned Sessions (6F.4)
+
+Assigned generated sight-reading prepares an active session in memory. No record is inserted at start. End & Save inserts one immutable `PracticeSessionRecord` with `.stopped`, its original stable context, start/end timestamps, and local-day contexts. Backgrounding freezes the observed end; force-quit recovery is deferred. Discard does not write or delete history. A previously successful but ambiguously reported save is never deleted by discarding its in-memory copy.
+
+Numeric `PracticeStatistics` are shown only in the immediate summary. V1 has no metric fields, and none are added. Session start/end do not create attempts, reflections, completions, mastery decisions, or programme-position updates. Optional end fields remain part of V1 but are not used as a mutable active-session contract.
+
+`recordSession` uses a fresh context with autosave disabled, rolls back that context on failure, and verifies success using a separate reader. This does not roll back pending work in the repository's original context. Session events in `chronologicalHistory` are read from a fresh context so duplicate reconciliation cannot mistake an unsaved insertion for durable success. Other repository operations retain their existing semantics.
+
+Retry preserves the exact identity, context, timestamps, and outcome. An existing identical durable record confirms success; a conflicting duplicate is a structured failure and is never overwritten. No schema migration or repository protocol change is required.

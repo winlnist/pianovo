@@ -211,6 +211,60 @@ struct SwiftDataPracticeHistoryRepositoryTests {
         #expect(PracticeHistoryMigrationPlan.stages.isEmpty)
     }
 
+    @Test func failedSessionInsertionRollsBackWithoutTouchingOtherPendingDataAndRetriesDurably() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let originalContext = ModelContext(container)
+        originalContext.autosaveEnabled = false
+        let pendingProgress = try Fixtures.activeProgress()
+        originalContext.insert(ActiveProgrammeProgressModel(progress: pendingProgress))
+        var shouldFail = true
+        let repository = SwiftDataPracticeHistoryRepository(context: originalContext) { writer in
+            if shouldFail { throw SessionSaveFailure() }
+            try writer.save()
+        }
+        let record = try Fixtures.session()
+        await #expect(throws: SessionSaveFailure.self) { try await repository.recordSession(record) }
+        #expect(try ModelContext(container).fetch(FetchDescriptor<PracticeSessionModel>()).isEmpty)
+        #expect(try await repository.chronologicalHistory().isEmpty)
+        #expect(originalContext.hasChanges)
+        #expect(try originalContext.fetch(FetchDescriptor<ActiveProgrammeProgressModel>()).count == 1)
+        shouldFail = false
+        try await repository.recordSession(record)
+        let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        #expect(try await reader.chronologicalHistory() == [.session(record)])
+        #expect(try ModelContext(container).fetch(FetchDescriptor<ActiveProgrammeProgressModel>()).isEmpty)
+        #expect(originalContext.hasChanges)
+        await #expect(throws: PracticeHistoryRepositoryError.duplicateID(record.id.rawValue)) {
+            try await repository.recordSession(record)
+        }
+    }
+
+    @Test func ambiguousSessionSaveIsVisibleFromSeparateContextAndNeverReplaced() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container)) { writer in
+            try writer.save()
+            throw SessionSaveFailure()
+        }
+        let record = try Fixtures.session()
+        await #expect(throws: SessionSaveFailure.self) { try await repository.recordSession(record) }
+        let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        #expect(try await reader.chronologicalHistory() == [.session(record)])
+        await #expect(throws: PracticeHistoryRepositoryError.duplicateID(record.id.rawValue)) {
+            try await repository.recordSession(record)
+        }
+        #expect(try await reader.chronologicalHistory() == [.session(record)])
+    }
+
+    @Test func successfulSaveMustBeVisibleOutsideWriter() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container), saveSessionContext: { _ in })
+        let record = try Fixtures.session()
+        await #expect(throws: PracticeHistoryRepositoryError.notFound(record.id.rawValue)) {
+            try await repository.recordSession(record)
+        }
+        #expect(try await repository.chronologicalHistory().isEmpty)
+    }
+
     private func makeRepository() throws -> SwiftDataPracticeHistoryRepository {
         let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
         return SwiftDataPracticeHistoryRepository(context: ModelContext(container))
@@ -237,3 +291,5 @@ struct SwiftDataPracticeHistoryRepositoryTests {
         )
     }
 }
+
+private struct SessionSaveFailure: Error {}

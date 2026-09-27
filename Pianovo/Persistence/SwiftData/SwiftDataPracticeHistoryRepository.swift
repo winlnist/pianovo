@@ -6,8 +6,11 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
     private let context: ModelContext
     private let validator = ProgressRecordValidator()
 
-    init(context: ModelContext) {
+    private let saveSessionContext: (ModelContext) throws -> Void
+
+    init(context: ModelContext, saveSessionContext: @escaping (ModelContext) throws -> Void = { try $0.save() }) {
         self.context = context
+        self.saveSessionContext = saveSessionContext
     }
 
     func loadProgress(programmeID: PracticeProgrammeID) async throws -> ProgrammeProgressSnapshot? {
@@ -73,12 +76,25 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
 
     func recordSession(_ session: PracticeSessionRecord) async throws {
         try validate(validator.validateSession(session))
-        guard try fetchSessionModels().first(where: { $0.id == session.id.rawValue }) == nil else {
+        // Session insertion is an isolated transaction: rollback must never touch
+        // pending progress or other records in the repository's original context.
+        let writer = ModelContext(context.container)
+        writer.autosaveEnabled = false
+        guard try writer.fetch(FetchDescriptor<PracticeSessionModel>()).first(where: { $0.id == session.id.rawValue }) == nil else {
             throw PracticeHistoryRepositoryError.duplicateID(session.id.rawValue)
         }
-
-        context.insert(PracticeSessionModel(session: session))
-        try context.save()
+        writer.insert(PracticeSessionModel(session: session))
+        do {
+            try saveSessionContext(writer)
+            let reader = ModelContext(context.container)
+            guard try reader.fetch(FetchDescriptor<PracticeSessionModel>())
+                .compactMap(Self.session).contains(session) else {
+                throw PracticeHistoryRepositoryError.notFound(session.id.rawValue)
+            }
+        } catch {
+            writer.rollback()
+            throw error
+        }
     }
 
     func recordAttempt(_ attempt: PerformanceAttemptRecord) async throws {
@@ -131,7 +147,8 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
 
     func chronologicalHistory() async throws -> [PracticeHistoryEvent] {
         let events: [PracticeHistoryEvent] =
-            try fetchSessionModels().compactMap(Self.session).map(PracticeHistoryEvent.session)
+            try ModelContext(context.container).fetch(FetchDescriptor<PracticeSessionModel>())
+                .compactMap(Self.session).map(PracticeHistoryEvent.session)
             + fetchAttemptModels().compactMap(Self.attempt).map(PracticeHistoryEvent.attempt)
             + fetchReflectionModels().compactMap(Self.reflection).map(PracticeHistoryEvent.reflection)
             + fetchMasteryDecisionModels().compactMap(Self.masteryDecision).map(PracticeHistoryEvent.masteryDecision)
