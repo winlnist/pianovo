@@ -2,11 +2,11 @@
 
 *Practice measured. Progress earned.*
 
-Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Its working experience turns a physical MIDI piano into an interactive sight-reading exercise: the app generates notation, listens for played notes through CoreMIDI, and advances only when the learner plays the expected pitch.
+Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Today provides a saved programme plan, while Practice turns a physical MIDI piano into an interactive sight-reading exercise: the app generates notation, listens for played notes through CoreMIDI, and advances only when the learner plays the expected pitch.
 
-The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with foundations for a structured twelve-week programme, progress history, reference material, and future teacher-guided planning.
+The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Progress history, document access, and teacher-guided planning remain future workflows supported by implemented foundations.
 
-> **Development status:** active portfolio project. The Practice experience works today. The broader coaching, programme, document, and teacher workflows described below are foundations or roadmap items unless explicitly identified as user-facing.
+> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.3 completes explicit programme start and saved-day presentation; session recording, document access, and teacher workflows remain planned.
 
 ## App preview
 
@@ -18,6 +18,21 @@ Both images are direct captures of the running app on an iPad Pro 11-inch (M5) s
 
 ## What works today
 
+### Today programme experience
+
+- Opens as the initial destination, with an explicit **Start Programme** action that initializes the twelve-week programme at **Week 1, Day 1**.
+- Persists and restores the current programme position across app launches; repeated starts preserve existing progress, and calendar dates do not advance the saved day.
+- Shows **Morning** and **Evening** practice sections, plus a distinct recovery/reflection-day presentation for saved recovery days.
+- Presents assignment goals, planned duration, and completion/mastery status when records exist.
+- Begins Beyer work at **Op. 101 No. 63**, with **Seconda** and **Prima** shown as required components of one exercise.
+- Represents reference-material availability honestly, keeping assignments visible even when documents are unavailable.
+- Provides structured loading, unavailable, and failure states, with retry where appropriate.
+- Uses responsive native iPhone/iPad layouts, including two columns at suitable widths, Dynamic Type, and VoiceOver labels.
+
+Today currently starts the programme and displays its saved plan and status. It does not start or record assignment-specific sessions, mark assignments complete through the UI, automatically evaluate mastery, or open reference documents.
+
+### MIDI sight-reading Practice
+
 - Continuous single-staff **Treble Reading** and **Bass Reading** exercises.
 - Responsive notation arranged into measures and systems on a paper-like practice surface.
 - Quarter notes, stems, barlines, ledger lines, and a highlighted current event.
@@ -28,19 +43,19 @@ Both images are direct captures of the running app on an iPad Pro 11-inch (M5) s
 - Session-only counts for correct answers, wrong attempts, accuracy, streak, and completed prompts.
 - Adaptive iPhone/iPad layout and an auto-hiding practice HUD that does not reflow the score.
 
-The navigation shell also exposes Today, Progress, Library, History, Ask My Teacher, and Settings. At the current milestone, these destinations display honest “coming later” states rather than unfinished functionality.
+Practice remains directly available from navigation. Progress, Library, History, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
 
 ## Implemented foundations
 
-These components are implemented and tested, but they are **not yet complete user-facing workflows**:
+These implemented and tested components support the app and future work; their presence does **not** imply complete user-facing workflows:
 
 - A framework-independent Music Domain and Full Score Domain with stable event identifiers.
 - A limited MusicXML `score-partwise` importer.
 - Development-only full-score rendering of MusicXML fixtures with Verovio.
-- A validated twelve-week programme model beginning at Beyer Op. 101 No. 63.
+- A validated twelve-week programme model used by Today; session lifecycle and programme progression controls remain deferred.
 - SwiftData repositories for programme progress, sessions, attempts, reflections, and mastery decisions.
 - A logical reference-material catalogue that keeps licensing and file availability explicit.
-- Today presentation state and production dependency composition; the Today screen itself remains a future milestone.
+- Production dependency composition and Today presentation state, now connected to the working Today screen.
 
 This distinction is deliberate: having a persistence model or view model in the codebase does not mean learners can already use the corresponding feature in the app.
 
@@ -111,7 +126,9 @@ xcodebuild \
 
 ### Verified baseline
 
-On 27 September 2026, the renamed project completed a clean build and all **175 tests across 19 suites passed** using an iPad Pro 11-inch (M5) simulator. The portfolio captures were produced from the running app on iPadOS 27.0.
+Milestone 6F.3 completed a clean simulator build and all **191 tests across 20 suites passed** using an iPad Pro 11-inch (M5) simulator. The existing Practice portfolio captures were produced from the running app on iPadOS 27.0.
+
+The Today experience was manually validated on a physical iPad: initial navigation, explicit start at Week 1 Day 1, Morning/Evening sections, Beyer No. 63 with Seconda and Prima, honest document availability, position restoration after reopening, and portrait/landscape layouts. Practice remained operational.
 
 The current Practice experience was also manually verified on 27 September 2026 using a physical iPad Pro with an M5 processor and a Yamaha P-45 digital piano connected directly by a USB-B to USB-C cable for USB MIDI. Pianovo received the played notes, correctly played notes advanced the sight-reading exercise, and session statistics updated, confirming that the core Practice workflow operated successfully on physical hardware.
 
@@ -120,19 +137,20 @@ The current Practice experience was also manually verified on 27 September 2026 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
 - Generated exercises use natural pitches and quarter-note notation rather than full musical context.
 - Session statistics are not yet connected to the SwiftData history foundation.
-- Today, Progress, Library, History, Ask My Teacher, and Settings are not yet functional screens.
+- Today has no assignment-specific session recording, completion action, automatic mastery evaluation, or controls to advance programme position.
+- Progress, Library, History, Ask My Teacher, and Settings remain placeholder screens.
+- Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
 - MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
-- PDF/photo import, optical music recognition, audio recording, tempo analysis, teacher accounts, chat, and cloud sync are planned rather than implemented.
+- PDF/photo import, optical music recognition, audio or raw MIDI performance recording, tempo/rhythm analysis, teacher accounts and teacher-created plans, Ask My Teacher chat, coach API, cloud sync, and collaboration remain planned workflows.
 - MIDI reconnect/hot-plug behaviour needs more real-device hardening.
 - The project retains known compiler-warning cleanup tasks despite the green build and test suite.
 
 ## Next milestones
 
-1. Add the Today screen and an explicit start-programme flow using the existing Today state.
-2. Connect practice sessions and assignment completion to the persistence/history foundation.
-3. Introduce document access and licensed/user-imported reference-material presentation.
-4. Add score-aligned MIDI timing and correctness analysis.
-5. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
+1. Connect practice sessions and assignment completion to the persistence/history foundation.
+2. Introduce document access and licensed/user-imported reference-material presentation.
+3. Add score-aligned MIDI timing and correctness analysis.
+4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
 
 See the detailed [roadmap](docs/ROADMAP.md) for completed milestones and longer-term work.
 
