@@ -4,6 +4,8 @@ import Foundation
 @MainActor
 final class TodayViewModel: ObservableObject {
     @Published private(set) var state: TodayViewState = .idle
+    @Published private(set) var startState: TodayStartState = .ready
+    private var isPerformingOperation = false
 
     private let programmeSeed: ProgrammeSeed?
     private let progressRepository: (any ProgrammeProgressRepository)?
@@ -31,7 +33,89 @@ final class TodayViewModel: ObservableObject {
         self.componentPolicy = componentPolicy
     }
 
+    convenience init(dependencies: AppDependencies) {
+        self.init(
+            progressRepository: dependencies.progressRepository,
+            practiceHistoryRepository: dependencies.practiceHistoryRepository,
+            referenceMaterialResolver: dependencies.referenceMaterialResolver,
+            clock: dependencies.clock,
+            localContextProvider: dependencies.localContextProvider
+        )
+    }
+
+    func loadIfNeeded() async {
+        guard state == .idle else { return }
+        await load()
+    }
+
+    /// A fresh read for an explicit retry; lifecycle updates use loadIfNeeded instead.
     func load() async {
+        guard !isPerformingOperation else { return }
+        isPerformingOperation = true
+        defer { isPerformingOperation = false }
+        startState = .ready
+        await loadState()
+    }
+
+    func startProgramme() async {
+        // Set the gate before the first suspension, including the read-before-write check.
+        guard !isPerformingOperation else { return }
+        isPerformingOperation = true
+        startState = .starting
+        defer { isPerformingOperation = false }
+
+        guard let programmeSeed else {
+            startState = .failed(.programmeDefinitionUnavailable)
+            state = .noProgrammeAvailable(.programmeDefinitionUnavailable)
+            return
+        }
+        guard let progressRepository, practiceHistoryRepository != nil else {
+            startState = .failed(.persistenceUnavailable)
+            state = .failure(.persistenceUnavailable)
+            return
+        }
+
+        let programme = programmeSeed.programme
+        let snapshot: ProgrammeProgressSnapshot?
+        do {
+            snapshot = try await progressRepository.loadProgress(programmeID: programme.id)
+        } catch {
+            startState = .failed(.progressLoadFailed)
+            state = .failure(.progressLoadFailed)
+            return
+        }
+
+        // Existing positions, even invalid ones, must never be silently overwritten.
+        if snapshot?.activeProgress == nil {
+            guard let week = programme.weeks.min(by: { $0.number < $1.number }),
+                  let day = week.days.min(by: { $0.dayNumber < $1.dayNumber }) else {
+                startState = .failed(.programmeDefinitionUnavailable)
+                state = .noProgrammeAvailable(.programmeDefinitionUnavailable)
+                return
+            }
+            state = .programmeNotStarted(TodayProgrammeSummary(
+                programmeID: programme.id, programmeVersion: programme.version, title: programme.title
+            ))
+            let temporalContext = PracticeTemporalContext(clock: clock, localContextProvider: localContextProvider)
+            let progress = ActiveProgrammeProgress(
+                programme: ProgrammeDefinitionReference(programmeID: programme.id, programmeVersion: programme.version),
+                currentWeekID: week.id,
+                currentDayID: day.id,
+                updatedAt: PracticeTimestamp(instant: temporalContext.now, localDay: temporalContext.localDay)
+            )
+            do {
+                try await progressRepository.saveActiveProgress(progress)
+            } catch {
+                startState = .failed(.progressSaveFailed)
+                return
+            }
+        }
+
+        startState = .ready
+        await loadState()
+    }
+
+    private func loadState() async {
         state = .loading
 
         guard let programmeSeed else {

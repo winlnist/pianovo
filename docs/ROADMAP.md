@@ -2,7 +2,7 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
-The current published baseline completes the 6F.2 Today presentation-state foundation and the technical Pianovo rename. Practice is the only complete learner-facing destination; 6F.3 is the next planned product milestone.
+Milestone 6F.3 adds Today presentation and explicit programme start on top of the 6F.2 state foundation and technical Pianovo rename. Today shows the saved day; Practice remains the working MIDI reading experience. Session lifecycle and completion recording remain deferred.
 
 ## 0. Project Foundation - Completed
 
@@ -165,7 +165,7 @@ The current published baseline completes the 6F.2 Today presentation-state found
 - Share the Pianovo scheme for development and CI while preserving implementation, resources, stable domain identifiers, and the Verovio package configuration.
 - Keep the Milestone 6C technical-name preservation above as historical scope; Today UI remains deferred to 6F.3.
 
-### 6F.3 Today Screen and Start Programme Flow - Next
+### 6F.3 Today Screen and Start Programme Flow - Completed
 
 - Replace the Today placeholder with a native SwiftUI screen driven by the existing `TodayViewModel` state.
 - Keep first launch explicit: the learner chooses when to start the programme.
@@ -173,7 +173,10 @@ The current published baseline completes the 6F.2 Today presentation-state found
 - Present morning, evening, and recovery work without advancing programme position from the calendar date.
 - Show Beyer Op. 101 No. 63 as one assignment with required Seconda and Prima components.
 - Keep unavailable reference documents visible but honestly marked unavailable.
-- Preserve direct access to the working Practice screen.
+- Open in Today while preserving direct access to the unchanged working Practice screen.
+- Keep the screen-owned view model stable, load once on entry, and use explicit retry for fresh reads.
+- Guard overlapping starts and loads, re-read before saving, preserve existing positions, and use injected temporal context.
+- Add deterministic start/lifecycle tests and in-memory previews for first launch, practice, recovery, material availability, and persistence failure.
 - Defer session lifecycle, completion actions, PDF presentation, automatic mastery evaluation, teacher features, and cloud sync.
 
 ## 7. Interactive Song Practice

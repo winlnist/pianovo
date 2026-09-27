@@ -4,13 +4,13 @@ Pianovo uses a layered architecture that keeps musical truth, practice behavior,
 
 ## Current implementation boundary
 
-The working user-facing path is the navigation shell and continuous single-staff Practice screen. Programme, progress/history, reference-material, MusicXML, full-score rendering, and Today-state code are implemented foundations, but they are not yet connected into complete learner-facing workflows.
+The app opens in Today, with an explicit programme start and a read-only view of the saved day. Practice remains directly available as the existing continuous single-staff experience. Progress/history, document access, MusicXML, and full-score rendering are foundations rather than complete learner-facing workflows.
 
 This boundary matters when describing the product:
 
-- **Working UI:** Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
+- **Working UI:** Today programme start and saved-day presentation; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
 - **Implemented foundations:** twelve-week programme, SwiftData repositories, Today presentation state, logical reference-material resolution, limited MusicXML import, and development-facing Verovio rendering.
-- **Planned UI:** Today start flow, persisted Practice integration, Progress, Library, History, teacher collaboration, document import, and interactive songs.
+- **Planned UI:** persisted Practice integration, Progress, Library, History, teacher collaboration, document import, and interactive songs.
 
 ## Dependency Rule
 
@@ -115,6 +115,10 @@ Current app launch flow:
 PianovoApp
   -> ContentView
   -> AppShellView
+  -> Today destination (initial selection)
+  -> TodayScreen / TodayViewModel
+
+AppShellView
   -> Practice destination
   -> PracticeScreen
   -> PracticeViewModel / PracticeSession
@@ -123,9 +127,13 @@ PianovoApp
 
 Milestone 6F.2 adds explicit application dependency composition without changing the visible Practice destination. `PianovoApp` creates `AppDependencies`, `ContentView` passes them into `AppShellView`, and Practice still constructs the existing `PracticeScreen`.
 
-The future Today screen will consume a `@MainActor` `TodayViewModel` that loads presentation state from the Pianovo seed programme, persisted progress, latest mastery decisions, reference-material resolution, document availability, and deterministic temporal context. This is application-facing presentation state only; it does not start sessions, mutate progress, display PDFs, or perform MIDI/audio analysis.
+Milestone 6F.3 adds `TodayScreen`, which owns a stable `@StateObject` `TodayViewModel` constructed from injected `AppDependencies`. The view consumes presentation state only, including structured loading failures, saved practice/recovery days, completion/mastery status, and material availability. It keeps morning and evening visible, uses two columns at suitable widths, and stacks at narrow widths or accessibility text sizes. Beyer No. 63 retains required Seconda and Prima components within one logical exercise; there are no component completion actions or document-opening controls.
 
-Persisted active programme progress is authoritative. Today state does not advance week/day from calendar date, and first launch remains an explicit programme-not-started state until a future UI provides a Start Programme action.
+Persisted active programme progress is authoritative. `loadIfNeeded()` loads only the idle state; explicit Retry calls `load()` for a fresh read. The view model serializes its loads and starts across suspension points. First launch remains programme-not-started until the learner chooses Start Programme.
+
+`startProgramme()` re-reads existing progress before writing. Existing positions, including invalid ones, are never reset; they are reloaded and validated for presentation. With no active progress, the action resolves the first numbered week/day from the seed and saves only `ActiveProgrammeProgress`, timestamped with the injected clock and local temporal context. It then reloads Today. The separate ready/starting/failed action state prevents concurrent taps and supports retries, including an ambiguous save followed by a fresh read. The guard covers the single screen-owned view model; future independent progress writers would require an atomic repository operation.
+
+Starting creates no sessions, attempts, completions, reflections, or mastery decisions. Calendar date, midnight, and daylight-saving transitions never advance the saved position. Practice, its MIDI path, and repository adapters remain unchanged. Deterministic previews use in-memory repositories only; no production personal data is written.
 
 Production dependency bootstrap creates and strongly retains the SwiftData `ModelContainer` for the dependency lifetime. If container creation fails, persistence is represented as unavailable; the app does not crash and does not silently switch to temporary in-memory storage.
 

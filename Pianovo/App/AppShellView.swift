@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AppShellView: View {
     let dependencies: AppDependencies
-    @State private var selectedDestination: AppDestination? = .practice
+    @State private var selectedDestination: AppDestination? = .today
 
     init(dependencies: AppDependencies) {
         self.dependencies = dependencies
@@ -25,17 +25,19 @@ struct AppShellView: View {
             }
         } detail: {
             destinationView
-                .navigationTitle((selectedDestination ?? .practice).title)
+                .navigationTitle((selectedDestination ?? .today).title)
         }
     }
 
     @ViewBuilder
     private var destinationView: some View {
-        switch selectedDestination ?? .practice {
+        switch selectedDestination ?? .today {
         case .practice:
             PracticeScreen()
-        case .today, .progress, .library, .history, .askMyTeacher, .settings:
-            ComingSoonView(destination: selectedDestination ?? .practice)
+        case .today:
+            TodayScreen(dependencies: dependencies)
+        case .progress, .library, .history, .askMyTeacher, .settings:
+            ComingSoonView(destination: selectedDestination ?? .today)
         }
     }
 }

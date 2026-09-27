@@ -99,3 +99,16 @@ nonisolated struct TodayReferenceMaterialComponentState: Equatable, Identifiable
     let pdfKitPageIndex: Int?
     let printedPageLabel: String?
 }
+
+nonisolated enum TodayStartState: Equatable {
+    case ready
+    case starting
+    case failed(TodayStartFailure)
+}
+
+nonisolated enum TodayStartFailure: Equatable {
+    case persistenceUnavailable
+    case programmeDefinitionUnavailable
+    case progressLoadFailed
+    case progressSaveFailed
+}
