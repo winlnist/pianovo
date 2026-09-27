@@ -1,94 +1,89 @@
 # Product
 
-## Working Product Identity
+## Identity
 
-The combined app's working user-facing name is Pianovo, with the tagline "Practice measured. Progress earned."
+Pianovo is a native iPhone and iPad piano-practice app with the tagline “Practice measured. Progress earned.” The Xcode project, app target, shared scheme, module, source folder, and bundle identifiers now use the Pianovo name. The name has not undergone legal or trademark clearance.
 
-Pianovo is a working brand name, not legal or trademark clearance. Keep the name centralized and easy to change until clearance is complete. The dedicated technical rename uses Pianovo for the Xcode project, shared scheme, app target/module, source folder, and app entry point, and PianovoTests for the test target/module and folder. Bundle identifiers are `com.fredericinthavanh.Pianovo` and `com.fredericinthavanh.PianovoTests`. Further technical renames require a dedicated task.
+## Problem and motivation
 
-Pianovo is a native SwiftUI app for iPhone and iPad that helps piano learners practice reading music and playing the correct notes on a physical MIDI keyboard.
+Piano learners commonly work across paper methods, scales, teacher notes, and disconnected practice tools. Those materials show what to play, but they do not create a measurable practice loop or make the next task clear.
 
-## Core Purpose
+Pianovo began as a personal response to that gap. The immediate goal is to reduce the distance between seeing notation and finding the correct piano key. The broader goal is to help a learner organise practice independently while leaving room for a teacher to review progress and assign future work.
 
-The app should reduce the gap between seeing notation and finding the correct key on the piano. It should give immediate feedback, track progress, and gradually support richer musical material.
+The product direction joins three ideas:
 
-## Current Product Experience
+- **Practise:** play generated or assigned material with immediate MIDI feedback.
+- **Plan:** follow a structured programme that progresses through demonstrated mastery.
+- **Collaborate:** eventually allow a teacher to review evidence and adjust a student’s plan.
 
-The current app launches into a Pianovo navigation shell with Practice selected. Practice remains the existing continuous single-staff sight-reading experience:
+## Intended users
 
-- The user selects Treble Reading or Bass Reading.
-- The app shows a paper-like music page with measures, systems, quarter notes, and a current-event highlight.
-- Exercises contain ordered reading events generated before practice begins.
-- Correct MIDI input advances through the sequence.
-- Incorrect MIDI input leaves the current event active.
-- A new exercise is generated automatically after the final event.
-- Treble Reading defaults to C4-C6.
-- Bass Reading defaults to C2-C4.
-- Range controls use natural-note options within C2-C6.
-- Statistics are session-only and are not persisted.
+### Learner
 
-The current production experience is no longer the original one-note flash-card view.
+A piano learner who wants clear daily work, immediate feedback, and evidence of progress. The initial programme is grounded in the creator’s current context: improving already-familiar scales and arpeggios and continuing the Beyer method from Op. 101 No. 63, including both Seconda and Prima where applicable.
 
-## Near-Term Direction
+### Teacher — future workflow
 
-The user should be able to:
+A teacher who can eventually review a student’s practice history, assign or adjust upcoming material, and answer questions. Teacher accounts, remote planning, chat, and cloud sync are not implemented in the current app.
 
-- Follow a data-driven twelve-week Pianovo programme once programme UI is introduced.
-- Move through primary destinations for Today, Practice, Progress, Library, History, Ask My Teacher, and Settings, with unfinished areas clearly marked for later milestones.
-- Choose a practice range.
-- Practice treble or bass sight reading from a physical MIDI piano.
-- Receive clear correctness feedback.
-- Advance through a practice session.
-- Review basic accuracy and progress.
-- Improve generated notation readability and practice flow.
+## Current user-facing experience
 
-Near-term work should continue strengthening the current reading loop before expanding into imported songs.
+The app launches into a Pianovo navigation shell with Practice selected. Practice is a working continuous single-staff sight-reading experience:
 
-## Platform
+- Choose Treble Reading or Bass Reading.
+- Read a generated 64-note exercise arranged into measures and responsive systems.
+- Adjust the natural-note range within C4-C6 for treble or C2-C4 for bass.
+- Play on a physical MIDI piano.
+- Advance after a correct note; remain on the current note after an incorrect attempt.
+- Receive a new exercise after completing the current one.
+- Review session-only correct, wrong, attempt, accuracy, streak, and completion values.
 
-- Native iPhone and iPad app.
-- SwiftUI application shell.
-- CoreMIDI for physical MIDI piano input.
-- Renderer-agnostic notation architecture.
+The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Today, Progress, Library, History, Ask My Teacher, and Settings currently show “coming later” states.
 
-## Long-Term Vision
+## Implemented but not yet exposed as complete workflows
 
-Over time, Pianovo should grow into an App Store-quality practice app with multiple practice activities:
+- A twelve-week programme and mastery domain beginning at Beyer Op. 101 No. 63.
+- Local SwiftData models and repositories for active progress, completions, sessions, attempts, reflections, and mastery decisions.
+- Today presentation state that can combine programme position, persisted progress, mastery, and reference-material availability.
+- A logical catalogue for Beyer and supporting practice material; the source documents are not bundled or openable in the app.
+- A limited MusicXML importer and a development-only Verovio fixture renderer.
 
-- Grand-staff and two-hand practice.
-- Chord reading.
-- Accidentals and key signatures.
-- Rhythm-aware exercises.
-- Full-score rendering.
-- Interactive song practice.
-- MusicXML import.
-- PDF or photo sheet-music import.
-- Optical music recognition.
-- Structured progress history.
-- Personalized difficulty and review.
+Current practice sessions do not yet write to the progress/history repositories. The presence of these foundations must not be presented as a working Progress, History, Today, document-library, or imported-song experience.
 
-## Current Non-Goals
+## Near-term product direction
 
-- Mixed/grand-staff continuous practice.
-- Two-hand practice.
-- Chords.
-- Accidentals in generated practice.
-- Rhythm variation, rests, ties, tuplets, or real time signatures.
-- MusicXML file picker/import UI.
-- Production imported-score UI.
-- Interactive imported-song practice.
-- PDF recognition.
-- AI recognition.
-- Optical music recognition.
-- Persistence/history.
-- Programme UI and persisted mastery decisions.
-- MIDI output or recording.
-- User accounts or cloud sync.
+- Add an explicit Start Programme action and native Today screen.
+- Connect assigned work to the existing Practice experience.
+- Persist session and assignment outcomes.
+- Present user-imported or legally distributable reference material.
+- Add score-aligned MIDI timing and correctness analysis.
+- Expose progress in a way that is useful to both learner and teacher.
 
-## Product Principles
+## Longer-term vision
 
-- Keep practice fast and clear.
-- Favor correctness and musical accuracy over visual flourish.
-- Make each feature useful before making it broad.
-- Keep Version 0.1 small enough to finish and test well.
-- Design the foundation so later full-score and import workflows do not require rewriting the core domain.
+- Grand-staff, two-hand, chord, accidental, key-signature, and rhythm-aware practice.
+- Interactive MusicXML scores and full-song practice.
+- PDF/photo import with optical music recognition and a verification workflow.
+- Tempo and note-quality feedback from MIDI first, with audio analysis considered separately.
+- Structured learner/teacher collaboration, accounts, and optional sync.
+
+## Product principles
+
+- Make the next practice action clear.
+- Measure performance without interrupting musical flow.
+- Progress from evidence of mastery, not simply elapsed calendar time.
+- Keep teacher involvement possible without making self-directed practice dependent on it.
+- Distinguish working UI, implemented foundations, and planned functionality.
+- Prefer correct musical behaviour over visual novelty.
+- Keep personal practice data local-first until sync has a justified product need.
+- Do not distribute copyrighted reference material without confirmed rights.
+
+## Current limitations and non-goals
+
+- No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
+- No persisted statistics in the working Practice screen.
+- No functional Today, Progress, Library, History, teacher, or settings workflows.
+- No production MusicXML file picker or imported-song practice.
+- No PDF/photo import, optical music recognition, or score correction UI.
+- No MIDI recording timeline, tempo assessment, audio analysis, or playback.
+- No accounts, teacher portal, chat service, cloud sync, or API-key-backed coach.

@@ -2,6 +2,8 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
+The current published baseline completes the 6F.2 Today presentation-state foundation and the technical Pianovo rename. Practice is the only complete learner-facing destination; 6F.3 is the next planned product milestone.
+
 ## 0. Project Foundation - Completed
 
 - Establish documentation and repository guidance.
@@ -106,7 +108,7 @@ The roadmap keeps Pianovo small at first while preserving a path toward full int
 ### 6C Pianovo Identity and Navigation Shell - Completed
 
 - Add Pianovo as the working user-facing product name and centralize the tagline "Practice measured. Progress earned."
-- Preserve all technical identifiers, including the Xcode project, targets, schemes, Swift module, bundle identifiers, folders, and source file prefixes.
+- At this milestone, preserve the earlier technical identifiers; they are renamed separately in the later Technical Project Rename milestone.
 - Introduce primary app destinations for Today, Practice, Progress, Library, History, Ask My Teacher, and Settings.
 - Keep Practice wired to the existing production `PracticeScreen`.
 - Mark unfinished destinations as coming in a later milestone.
@@ -163,6 +165,17 @@ The roadmap keeps Pianovo small at first while preserving a path toward full int
 - Share the Pianovo scheme for development and CI while preserving implementation, resources, stable domain identifiers, and the Verovio package configuration.
 - Keep the Milestone 6C technical-name preservation above as historical scope; Today UI remains deferred to 6F.3.
 
+### 6F.3 Today Screen and Start Programme Flow - Next
+
+- Replace the Today placeholder with a native SwiftUI screen driven by the existing `TodayViewModel` state.
+- Keep first launch explicit: the learner chooses when to start the programme.
+- Create active progress at Week 1, Day 1 without creating fictional sessions, completions, attempts, or mastery decisions.
+- Present morning, evening, and recovery work without advancing programme position from the calendar date.
+- Show Beyer Op. 101 No. 63 as one assignment with required Seconda and Prima components.
+- Keep unavailable reference documents visible but honestly marked unavailable.
+- Preserve direct access to the working Practice screen.
+- Defer session lifecycle, completion actions, PDF presentation, automatic mastery evaluation, teacher features, and cloud sync.
+
 ## 7. Interactive Song Practice
 
 - Present imported songs as interactive scores.
@@ -177,12 +190,14 @@ The roadmap keeps Pianovo small at first while preserving a path toward full int
 - Convert recognized notation into MusicXML or direct domain models.
 - Add verification and correction UX before practice.
 
-## 9. Progress, History, and Persistence
+## 9. Progress, History, and Adaptive Coaching UI
 
-- Persist session summaries.
-- Track accuracy by pitch, range, clef, song, and event identifier.
-- Separate progress records from score definitions.
-- Add local persistence first; evaluate sync later.
+- Connect the working Practice session to the existing local progress/history repositories.
+- Present persisted session summaries, assignment completion, reflections, and mastery decisions.
+- Track accuracy by pitch, range, clef, song, and stable event identifier.
+- Add adaptive review and sequencing on top of recorded evidence.
+- Expose learner progress and teacher planning workflows.
+- Keep local persistence authoritative first; evaluate accounts and sync only after the local workflow is useful.
 
 ## 10. App Store Readiness
 

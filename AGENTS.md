@@ -5,6 +5,7 @@ Guidance for future Codex work on Pianovo.
 ## Before Implementing
 
 - Inspect the current Xcode project structure before changing files.
+- Use the `Pianovo.xcodeproj` project and shared `Pianovo` scheme. The app and test targets are `Pianovo` and `PianovoTests`.
 - Read the relevant documentation before implementing a feature:
   - Product behavior: `docs/PRODUCT.md`
   - Architecture and boundaries: `docs/ARCHITECTURE.md`
@@ -14,6 +15,7 @@ Guidance for future Codex work on Pianovo.
   - Import work: `docs/IMPORT_PIPELINE.md`
 - Keep changes scoped to the requested milestone or task.
 - Do not silently change architecture. If an architectural direction needs to change, update the docs and call it out.
+- Distinguish user-facing functionality from domain, persistence, import, and presentation-state foundations. Do not describe a foundation as a shipped workflow.
 
 ## Coding Rules
 
@@ -37,15 +39,17 @@ Version 0.1 is intentionally small. Do not implement PDF recognition, AI recogni
 
 For Version 0.1, focus on:
 
-- Grand staff note-reading.
-- Configurable pitch range.
-- MIDI note input.
-- Played-note matching.
-- Session statistics.
+- Continuous single-staff Treble Reading and Bass Reading.
+- Natural-note ranges within C4-C6 for treble and C2-C4 for bass.
+- Physical MIDI note input and played-note matching.
+- Stable notation layout with measures, systems, ledger lines, and current-event highlighting.
+- Session-only statistics until a dedicated milestone connects Practice to persistence.
+- Today/programme work only when the roadmap explicitly moves beyond the current 6F.2 presentation-state foundation.
 
 ## Repository Hygiene
 
 - Keep documentation and implementation in sync.
+- Run the complete `Pianovo` test action and an app build before claiming a task is complete.
 - Prefer focused changes over broad refactors.
 - Avoid unrelated formatting churn.
 - If generated files or Xcode metadata change unexpectedly, inspect them before including them.

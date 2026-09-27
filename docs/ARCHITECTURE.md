@@ -1,6 +1,16 @@
 # Architecture
 
-Pianovo should use a clean architecture that keeps musical truth, practice behavior, input adapters, rendering, persistence, and UI separate.
+Pianovo uses a layered architecture that keeps musical truth, practice behavior, input adapters, rendering, persistence, and UI separate.
+
+## Current implementation boundary
+
+The working user-facing path is the navigation shell and continuous single-staff Practice screen. Programme, progress/history, reference-material, MusicXML, full-score rendering, and Today-state code are implemented foundations, but they are not yet connected into complete learner-facing workflows.
+
+This boundary matters when describing the product:
+
+- **Working UI:** Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
+- **Implemented foundations:** twelve-week programme, SwiftData repositories, Today presentation state, logical reference-material resolution, limited MusicXML import, and development-facing Verovio rendering.
+- **Planned UI:** Today start flow, persisted Practice integration, Progress, Library, History, teacher collaboration, document import, and interactive songs.
 
 ## Dependency Rule
 
@@ -104,6 +114,8 @@ Current app launch flow:
 ```text
 PianovoApp
   -> ContentView
+  -> AppShellView
+  -> Practice destination
   -> PracticeScreen
   -> PracticeViewModel / PracticeSession
   -> SightReadingPageView
@@ -149,7 +161,7 @@ Physical MIDI input has been confirmed working on iPad using this reliable start
 
 Rendering should be adapter-based. Renderers receive renderer-specific view models derived from the Music Domain.
 
-For simple interactive drills, plan for a lightweight native SwiftUI/Core Graphics renderer. This should support the Version 0.1 grand staff and correct ledger-line rendering.
+Simple interactive drills use a lightweight native SwiftUI/Core Graphics renderer. The current production path renders one treble or bass staff at a time with correct ledger lines; the earlier grand-staff renderer remains a foundation for future mixed-staff work.
 
 The Version 0.1 drill renderer owns notation font details. It bundles Bravura locally as a SMuFL-compatible font, registers it inside the rendering layer, and keeps SMuFL codepoints in renderer-specific glyph helpers. The Music Domain continues to expose only semantic staff placement and ledger-line data.
 
@@ -234,16 +246,23 @@ Separate Swift packages or framework targets can be considered when boundaries b
 
 ## Testing Strategy
 
-Each feature should have unit-testable domain logic.
+Domain and business logic is designed to run without launching the app, connecting a MIDI device, opening a document, or writing a production database. Tests use deterministic random sources, clocks, calendar/time-zone contexts, and in-memory persistence where relevant.
 
-Prioritize tests for:
+The current suites cover:
 
 - MIDI note number to pitch conversion.
 - Pitch range generation.
 - Clef assignment and staff placement.
 - Ledger-line calculation.
 - Expected answer matching.
-- Chord matching.
 - Session statistics.
+- Responsive sight-reading layout.
+- Full Score Domain and supported MusicXML import behaviour.
+- Verovio fixture rendering.
+- Programme validation and seed-data policy.
+- Progress-record validation, duplicate semantics, deletion/reset behaviour, and local-day handling.
+- In-memory and SwiftData repository round trips.
+- Reference-material resolution and Beyer Prima/Seconda metadata.
+- Today presentation state and dependency bootstrap.
 
-UI and adapter tests can be added after the core domain and practice engine are stable.
+The verified portfolio baseline on 27 September 2026 is a clean app build with 175 tests passing across 19 suites. Dedicated UI automation and screenshot regression testing remain future work.

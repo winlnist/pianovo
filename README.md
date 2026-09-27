@@ -1,105 +1,148 @@
 # Pianovo
 
-Pianovo is a native SwiftUI piano-learning app for iPhone and iPad. Its purpose is to help users practice music reading and piano by showing notation, listening to a physical MIDI piano, and comparing what the user plays against the expected musical material.
+*Practice measured. Progress earned.*
 
-The current production practice experience is continuous single-staff sight reading. Users choose Treble Reading or Bass Reading, read ordered note events across a paper-like music page, and play each note on a physical MIDI piano. Correct MIDI input advances to the next event; incorrect input keeps the current event active. A fresh exercise is generated automatically after the final event.
+Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Its working experience turns a physical MIDI piano into an interactive sight-reading exercise: the app generates notation, listens for played notes through CoreMIDI, and advances only when the learner plays the expected pitch.
 
-## Product Direction
+The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with foundations for a structured twelve-week programme, progress history, reference material, and future teacher-guided planning.
 
-Pianovo should grow into an App Store-quality practice app that can support:
+> **Development status:** active portfolio project. The Practice experience works today. The broader coaching, programme, document, and teacher workflows described below are foundations or roadmap items unless explicitly identified as user-facing.
 
-- Treble and bass staff reading.
-- Configurable note ranges, initially around C2-C6.
-- Correct notation rendering for ledger lines, accidentals, chords, rhythm, and eventually full scores.
-- Physical MIDI piano input through CoreMIDI.
-- Matching played notes and chords against expected notes and chords.
-- Practice-session progress, accuracy, and history.
-- MusicXML song import.
-- Future PDF/photo sheet-music recognition that converts visual notation into structured interactive notation.
+## App preview
 
-## Architecture Direction
+| Practice controls | Distraction-free score |
+| --- | --- |
+| ![Pianovo running on an iPad simulator with the Practice destination, generated treble score, range controls, MIDI status, and session statistics](docs/images/pianovo-practice-ipad-controls.png) | ![Pianovo running on an iPad simulator with its controls hidden and generated treble score filling the practice surface](docs/images/pianovo-practice-ipad-score.png) |
 
-The project should be built around a framework-independent Music Domain. The Music Domain is the single source of truth for musical concepts and must not depend on SwiftUI, CoreMIDI, Verovio, networking, persistence, or other infrastructure frameworks.
+Both images are direct captures of the running app on an iPad Pro 11-inch (M5) simulator. The disconnected MIDI state is expected in the simulator.
 
-High-level boundaries:
+## What works today
 
-- Music Domain: pitches, notes, chords, clefs, staff placement, rhythm, score events, stable event identifiers.
-- Practice Engine: exercise state, expected answers, matching, scoring, session progress.
-- Programme Domain: data-driven practice programme structure, source references, mastery rules, and validation.
-- Progress/Persistence: local-first student progress records, repository protocols, and persistence adapters separated from Programme and Music domains.
-- Reference Materials: logical catalogue metadata and source-resolution boundaries, separate from document access and PDF presentation.
-- Rendering Adapters: convert domain notation into renderer-specific view models.
-- MIDI Adapter: observes CoreMIDI and converts MIDI messages into domain input events.
-- App/UI Layer: SwiftUI screens, app state composition, navigation, accessibility, user interaction.
-- Persistence/Progress: user performance and session history, separate from score definitions.
+- Continuous single-staff **Treble Reading** and **Bass Reading** exercises.
+- Responsive notation arranged into measures and systems on a paper-like practice surface.
+- Quarter notes, stems, barlines, ledger lines, and a highlighted current event.
+- Configurable natural-note ranges: C4-C6 for treble and C2-C4 for bass.
+- Physical piano input through CoreMIDI, validated with a Yamaha P-45 and iPad.
+- Correct notes advance the exercise; incorrect notes keep the current event active.
+- A new 64-note exercise is generated after the current exercise is completed.
+- Session-only counts for correct answers, wrong attempts, accuracy, streak, and completed prompts.
+- Adaptive iPhone/iPad layout and an auto-hiding practice HUD that does not reflow the score.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the intended boundaries.
+The navigation shell also exposes Today, Progress, Library, History, Ask My Teacher, and Settings. At the current milestone, these destinations display honest “coming later” states rather than unfinished functionality.
 
-## Current Version 0.1 Scope
+## Implemented foundations
 
-Version 0.1 currently includes:
+These components are implemented and tested, but they are **not yet complete user-facing workflows**:
 
-- Continuous single-staff Treble Reading and Bass Reading exercises.
-- Ordered reading events grouped into measures and responsive systems.
-- Quarter-note notation with clefs, stems, barlines, ledger lines, and current-event highlighting.
-- Configurable pitch range controls.
-- Treble default range C4-C6.
-- Bass default range C2-C4.
-- Natural-note range options within C2-C6.
-- Correct ledger-line rendering.
-- MIDI device detection and note-on/note-off input.
-- MIDI note number to domain pitch conversion.
-- Correct/incorrect matching against the current reading event.
-- Automatic advancement after a correct answer.
-- Session-only statistics.
-- MusicXML import foundation for a small supported subset mapped into the Full Score Domain.
-- Debug-only Verovio full-score rendering for MusicXML fixtures.
-- Framework-independent programme domain and twelve-week Pianovo seed structure.
-- Local persistence and history foundation for student progress, verified through repository tests.
+- A framework-independent Music Domain and Full Score Domain with stable event identifiers.
+- A limited MusicXML `score-partwise` importer.
+- Development-only full-score rendering of MusicXML fixtures with Verovio.
+- A validated twelve-week programme model beginning at Beyer Op. 101 No. 63.
+- SwiftData repositories for programme progress, sessions, attempts, reflections, and mastery decisions.
+- A logical reference-material catalogue that keeps licensing and file availability explicit.
+- Today presentation state and production dependency composition; the Today screen itself remains a future milestone.
 
-Version 0.1 does not include:
+This distinction is deliberate: having a persistence model or view model in the codebase does not mean learners can already use the corresponding feature in the app.
 
-- Mixed/grand-staff continuous practice.
-- Two-hand practice.
-- Chords.
-- Accidentals in generated practice.
-- Rhythm variation, rests, ties, tuplets, or real time signatures.
-- MusicXML file picker/import UI.
-- Production imported-score UI.
-- PDF recognition.
-- AI recognition.
-- Persistence/history.
-- Programme UI, persisted mastery decisions, and adaptive Beyer sequencing.
-- MIDI output or recording.
-- Full-song playback.
-- Full MusicXML song practice.
+## Engineering highlights
 
-## MIDI Notes
+- **Native interaction:** SwiftUI and CoreMIDI provide a responsive practice loop with physical-instrument input.
+- **Separated domains:** music, practice behaviour, curriculum, progress, rendering, and infrastructure have explicit boundaries.
+- **Renderer strategy:** lightweight native notation supports interactive drills; Verovio is isolated behind a separate adapter for future full scores.
+- **Stable identity:** score events, programme elements, assignments, and persisted records use deterministic identifiers.
+- **Local-first persistence:** SwiftData is confined to an adapter layer behind asynchronous repository protocols.
+- **Deterministic tests:** injected clocks, time zones, calendars, random sources, and in-memory stores avoid dependence on device state.
+- **Responsible source handling:** reference PDFs and audio are not committed or bundled while usage rights remain unverified.
 
-Physical MIDI input has been confirmed working on iPad. The most reliable tested startup sequence is:
+## Technology
 
-```text
-app not running -> connect cable -> power piano -> launch Pianovo
+- Swift, SwiftUI, and Swift Testing
+- CoreMIDI
+- SwiftData with a versioned schema and migration-plan scaffold
+- Foundation `XMLParser` for the supported MusicXML subset
+- Native SwiftUI/Core Graphics notation with the bundled Bravura SMuFL font
+- Verovio through Swift Package Manager for development-facing full-score rendering
+- WebKit, isolated to the Verovio SVG debug view
+
+## My role
+
+I created Pianovo to combine my experience in learning design with hands-on product and software development. I defined the learner problem, product direction, milestones, acceptance criteria, architecture boundaries, and test strategy; guided the iterative Swift implementation; reviewed each change; and validated MIDI behaviour on a Yamaha P-45.
+
+The implementation has been developed with Codex as an AI coding collaborator. My contribution is therefore best described as product ownership and AI-assisted engineering: translating a real learning need into technical requirements, evaluating trade-offs, testing the result, diagnosing integration issues, and maintaining the product and repository documentation.
+
+## Build and run
+
+### Requirements
+
+- A Mac with Xcode and an iOS/iPadOS 26.5 SDK or later.
+- iOS/iPadOS deployment target 26.5.
+- An iPhone or iPad simulator for the interface, or a compatible physical device for CoreMIDI input.
+- Optional: a class-compliant MIDI piano and the appropriate USB connection. The hardware path has been validated with a Yamaha P-45 connected by USB-B to USB-C.
+
+No API key is required for the current build. Verovio resolves automatically through Swift Package Manager at the revision pinned in `Package.resolved`.
+
+### Xcode
+
+1. Clone the repository: `git clone https://github.com/winlnist/pianovo.git`.
+2. Open `Pianovo.xcodeproj`.
+3. Select the shared `Pianovo` scheme.
+4. Choose an iPhone/iPad simulator or a configured physical device.
+5. Build and run.
+
+For the most reliable physical MIDI startup sequence, connect the cable, power on the piano, and then launch Pianovo.
+
+### Command line
+
+Replace the destination when that simulator is not installed locally:
+
+```bash
+xcodebuild \
+  -project Pianovo.xcodeproj \
+  -scheme Pianovo \
+  -destination 'platform=iOS Simulator,name=iPad Pro 11-inch (M5)' \
+  build
+
+xcodebuild \
+  -project Pianovo.xcodeproj \
+  -scheme Pianovo \
+  -destination 'platform=iOS Simulator,name=iPad Pro 11-inch (M5)' \
+  test
 ```
 
-Hot-plug/device-refresh code exists, but reconnect behavior has not yet been hardened or fully validated.
+### Verified baseline
 
-## Documentation Map
+On 27 September 2026, the renamed project completed a clean build and all **175 tests across 19 suites passed** using an iPad Pro 11-inch (M5) simulator. The portfolio captures were produced from the running app on iPadOS 27.0.
 
-- [AGENTS.md](AGENTS.md): practical rules for future Codex work.
-- [docs/PRODUCT.md](docs/PRODUCT.md): product goals, audience, and constraints.
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): layers, boundaries, and dependency rules.
-- [docs/ROADMAP.md](docs/ROADMAP.md): milestone plan.
-- [docs/MUSIC_DOMAIN.md](docs/MUSIC_DOMAIN.md): core music model and notation concepts.
-- [docs/SCORE_DOMAIN.md](docs/SCORE_DOMAIN.md): full score domain foundation and boundaries.
-- [docs/PRACTICE_ENGINE.md](docs/PRACTICE_ENGINE.md): practice state, matching, scoring, and statistics.
-- [docs/PROGRAMME_DOMAIN.md](docs/PROGRAMME_DOMAIN.md): programme structure, source references, mastery rules, validation, and seed-data boundaries.
-- [docs/PERSISTENCE_AND_HISTORY.md](docs/PERSISTENCE_AND_HISTORY.md): progress records, local persistence boundaries, schema versioning, and deletion/reset semantics.
-- [docs/REFERENCE_MATERIALS.md](docs/REFERENCE_MATERIALS.md): reference-material catalogue, availability, page terminology, and licensing boundaries.
-- [docs/IMPORT_PIPELINE.md](docs/IMPORT_PIPELINE.md): MusicXML and future PDF/photo recognition plan.
+## Current limitations
 
-## Development Notes
+- Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
+- Generated exercises use natural pitches and quarter-note notation rather than full musical context.
+- Session statistics are not yet connected to the SwiftData history foundation.
+- Today, Progress, Library, History, Ask My Teacher, and Settings are not yet functional screens.
+- MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
+- PDF/photo import, optical music recognition, audio recording, tempo analysis, teacher accounts, chat, and cloud sync are planned rather than implemented.
+- MIDI reconnect/hot-plug behaviour needs more real-device hardening.
+- The project retains known compiler-warning cleanup tasks despite the green build and test suite.
 
-Prefer small, readable, unit-testable Swift types. Domain and business logic should be testable without launching SwiftUI, connecting a MIDI device, using a renderer, or touching persistence.
+## Next milestones
 
-Third-party dependencies should be introduced only when there is a documented reason and trade-off. Verovio is currently integrated for debug-only full-score rendering, but the architecture should remain renderer-agnostic.
+1. Add the Today screen and an explicit start-programme flow using the existing Today state.
+2. Connect practice sessions and assignment completion to the persistence/history foundation.
+3. Introduce document access and licensed/user-imported reference-material presentation.
+4. Add score-aligned MIDI timing and correctness analysis.
+5. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
+
+See the detailed [roadmap](docs/ROADMAP.md) for completed milestones and longer-term work.
+
+## Documentation
+
+- [Product](docs/PRODUCT.md) — problem, audiences, present experience, and product direction.
+- [Architecture](docs/ARCHITECTURE.md) — layers, dependencies, adapters, and persistence boundaries.
+- [Roadmap](docs/ROADMAP.md) — completed milestones and planned work.
+- [Music Domain](docs/MUSIC_DOMAIN.md) and [Score Domain](docs/SCORE_DOMAIN.md) — musical concepts and full-score model.
+- [Practice Engine](docs/PRACTICE_ENGINE.md) — exercise generation, matching, and statistics.
+- [Programme Domain](docs/PROGRAMME_DOMAIN.md) — twelve-week structure and mastery rules.
+- [Persistence and History](docs/PERSISTENCE_AND_HISTORY.md) — stored records, schema, and deletion semantics.
+- [Reference Materials](docs/REFERENCE_MATERIALS.md) — logical catalogue and document-access boundaries.
+- [Import Pipeline](docs/IMPORT_PIPELINE.md) — MusicXML support and future PDF/photo recognition.
+- [Contributor guidance](AGENTS.md) — constraints for future development work.
