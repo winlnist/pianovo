@@ -179,7 +179,7 @@ Milestone 6F.3 adds Today presentation and explicit programme start on top of th
 - Add deterministic start/lifecycle tests and in-memory previews for first launch, practice, recovery, material availability, and persistence failure.
 - Defer session lifecycle, completion actions, PDF presentation, automatic mastery evaluation, teacher features, and cloud sync.
 
-### 6F.4 Assigned Sight-Reading Session Lifecycle
+### 6F.4 Assigned Sight-Reading Session Lifecycle - Completed
 
 - Route only the supported generated sight-reading source from Today to preparation and the existing MIDI Practice surface.
 - Preserve the complete stable programme/week/day/block/assignment/source context without parsing IDs.
@@ -191,6 +191,18 @@ Milestone 6F.3 adds Today presentation and explicit programme start on top of th
 - Use the unchanged V1 schema and insert-only session semantics, with isolated insertion rollback and separate-context verification.
 - Preserve standalone Practice and keep unsupported assignments informational.
 - Defer force-quit recovery, assignment completion, mastery, programme advancement, generic sessions, PDFs, raw MIDI, analysis, History/Progress UI, teacher/API/cloud work, and 6F.5.
+
+### 6F.5 Self-Reported Assignment Completion - Completed
+
+- Offer Mark complete and Undo completion for every assignment in the saved current day, including outside-app work and recovery/reflection assignments.
+- Label completion as the learner's report, distinct from mastery and from saving a session.
+- Require confirmation of both Seconda and Prima before completing Beyer No. 63 as one assignment; defer component-level records.
+- Validate current programme/version/week/day and assignment/source context against a fresh progress read.
+- Persist only the existing assignment completion record; undo returns it to Not started with no completion time and preserves notes/history/mastery.
+- Serialize actions, retain intent/timestamps for retry, verify durable status before changing the display, and provide an explicit refresh.
+- Isolate failed SwiftData completion upserts from unrelated pending changes without schema or protocol changes.
+- Verify completion/undo restoration, repeated taps, required parts, stale positions, save/read failures, ambiguous saves, and the existing Practice flow.
+- Defer programme advancement and its mastery policy, PDFs, analysis, History/Progress UI, teacher/API/cloud work, and force-quit recovery.
 
 ## 7. Interactive Song Practice
 

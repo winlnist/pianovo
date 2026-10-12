@@ -8,9 +8,9 @@ The app opens in Today, with explicit programme start, saved-day presentation, a
 
 This boundary matters when describing the product:
 
-- **Working UI:** Today programme start, saved-day presentation, and assigned sight-reading session recording; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
+- **Working UI:** Today programme start, saved-day presentation, assigned sight-reading session recording, and learner-reported assignment completion/undo; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
 - **Implemented foundations:** twelve-week programme, SwiftData repositories, Today presentation state, logical reference-material resolution, limited MusicXML import, and development-facing Verovio rendering.
-- **Planned UI:** assignment completion, broader assigned practice, Progress, Library, History, teacher collaboration, document import, and interactive songs.
+- **Planned UI:** programme progression, broader assigned practice, Progress, Library, History, teacher collaboration, document import, and interactive songs.
 
 ## Dependency Rule
 
@@ -142,6 +142,12 @@ Preparation configures the existing reading mode/range. Explicit start allocates
 End & Save freezes statistics and end time before suspension, then inserts one `.stopped` session. Concurrent finish/retry calls are gated. Save failures retain the exact pending record; duplicate reconciliation succeeds only for an exact record read from durable history. Negative clock movement produces a structured failure. Numeric statistics remain temporary and never enter persistence.
 
 Temporary inactivity suspends input. Backgrounding freezes the observed end and transitions to interrupted. Foreground return offers save/discard; it does not resume or count background time. Exit is explicit and interactive dismissal is blocked during active/unsaved work. Force-quit recovery is deferred. No session action writes completion, programme progress, mastery, attempts, or reflections.
+
+Milestone 6F.5 adds completion actions to the screen-owned `TodayViewModel`. Every current-day assignment can be self-reported, independent of source availability or in-app Practice support. Required component acknowledgements are checked in the view model; Beyer No. 63 always requires both Seconda and Prima, even if reference resolution is unavailable. The confirmations remain transient and do not introduce component records or mastery evidence.
+
+Loads, starts, completion writes, and retries share the same operation gate. Completion resolves the full displayed hierarchy, then re-reads authoritative progress and checks programme/version/week/day/source before writing. A pending intent retains the original injected timestamp across retry. Status is updated on screen only after a durable read confirms the change; an already-saved desired status avoids another write. Refresh clears the pending intent and reloads authoritative state. Undo writes Not started with no completion timestamp while retaining existing notes. No action advances position or writes history/mastery.
+
+SwiftData completion upserts use an isolated context with autosave disabled, rollback on failure, and separate-context verification. Completion snapshots read from a fresh context so failed changes cannot look durable. The V1 schema, store models, repository protocols, Practice engine, PracticeViewModel, and MIDI adapter remain unchanged. The view-model operation gate covers one writer; independently concurrent progress writers would need a separate atomic repository contract.
 
 Production dependency bootstrap creates and strongly retains the SwiftData `ModelContainer` for the dependency lifetime. If container creation fails, persistence is represented as unavailable; the app does not crash and does not silently switch to temporary in-memory storage.
 

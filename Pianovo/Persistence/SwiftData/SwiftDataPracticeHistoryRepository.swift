@@ -7,17 +7,20 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
     private let validator = ProgressRecordValidator()
 
     private let saveSessionContext: (ModelContext) throws -> Void
+    private let saveCompletionContext: (ModelContext) throws -> Void
 
-    init(context: ModelContext, saveSessionContext: @escaping (ModelContext) throws -> Void = { try $0.save() }) {
+    init(context: ModelContext, saveCompletionContext: @escaping (ModelContext) throws -> Void = { try $0.save() },
+         saveSessionContext: @escaping (ModelContext) throws -> Void = { try $0.save() }) {
         self.context = context
         self.saveSessionContext = saveSessionContext
+        self.saveCompletionContext = saveCompletionContext
     }
 
     func loadProgress(programmeID: PracticeProgrammeID) async throws -> ProgrammeProgressSnapshot? {
         let activeProgress = try fetchActiveProgressModels()
             .first { $0.programmeID == programmeID.rawValue }
             .flatMap(Self.activeProgress)
-        let completions = try fetchCompletionModels()
+        let completions = try ModelContext(context.container).fetch(FetchDescriptor<AssignmentCompletionModel>())
             .filter { $0.programmeID == programmeID.rawValue }
             .compactMap(Self.completion)
             .sorted { $0.updatedAt.instant < $1.updatedAt.instant }
@@ -51,13 +54,25 @@ final class SwiftDataPracticeHistoryRepository: ProgrammeProgressRepository, Pra
             assignmentID: completion.assignmentID.rawValue
         )
 
-        if let existing = try fetchCompletionModels().first(where: { $0.id == stableID }) {
+        // Isolate a failed completion upsert from unrelated pending progress.
+        let writer = ModelContext(context.container)
+        writer.autosaveEnabled = false
+        if let existing = try writer.fetch(FetchDescriptor<AssignmentCompletionModel>()).first(where: { $0.id == stableID }) {
             existing.update(from: completion)
         } else {
-            context.insert(AssignmentCompletionModel(completion: completion))
+            writer.insert(AssignmentCompletionModel(completion: completion))
         }
-
-        try context.save()
+        do {
+            try saveCompletionContext(writer)
+            let reader = ModelContext(context.container)
+            guard try reader.fetch(FetchDescriptor<AssignmentCompletionModel>())
+                .compactMap(Self.completion).contains(completion) else {
+                throw PracticeHistoryRepositoryError.notFound(stableID)
+            }
+        } catch {
+            writer.rollback()
+            throw error
+        }
     }
 
     func resetProgrammeProgress(programmeID: PracticeProgrammeID) async throws {

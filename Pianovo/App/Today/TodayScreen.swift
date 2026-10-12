@@ -30,7 +30,7 @@ struct TodayScreen: View {
                         TodayDayView(
                             day: day,
                             usesColumns: geometry.size.width >= 780 && !dynamicTypeSize.isAccessibilitySize,
-                            onPractise: onPractise
+                            onPractise: onPractise, viewModel: viewModel
                         )
                     case .noProgrammeAvailable(let failure), .failure(let failure):
                         failureView(failure)
@@ -122,6 +122,7 @@ private struct TodayDayView: View {
     let day: TodayLoadedState
     let usesColumns: Bool
     let onPractise: ((AssignmentPracticeContext) -> Void)?
+    @ObservedObject var viewModel: TodayViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -154,7 +155,7 @@ private struct TodayDayView: View {
             }
 
             if day.dayKind == .recoveryReflection {
-                TodayBlockSection(title: "Recovery and reflection", symbol: "leaf", blocks: day.recoveryBlocks, day: day, onPractise: onPractise)
+                TodayBlockSection(title: "Recovery and reflection", symbol: "leaf", blocks: day.recoveryBlocks, day: day, onPractise: onPractise, viewModel: viewModel)
             } else if usesColumns {
                 HStack(alignment: .top, spacing: 24) {
                     morning
@@ -164,18 +165,18 @@ private struct TodayDayView: View {
                 morning
                 evening
             }
-            Text("This page shows your plan and any saved status. Generated sight-reading supports saved sessions. Assignment completion and document opening are not available yet.")
+            Text("Completion is your own report of practising an assignment, including work outside Pianovo. It does not mean mastery or move your programme forward. End & Save records a session separately. Reference documents cannot be opened here yet.")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
     }
 
     private var morning: some View {
-        TodayBlockSection(title: "Morning", symbol: "sun.max", blocks: day.morningBlocks, day: day, onPractise: onPractise)
+        TodayBlockSection(title: "Morning", symbol: "sun.max", blocks: day.morningBlocks, day: day, onPractise: onPractise, viewModel: viewModel)
     }
 
     private var evening: some View {
-        TodayBlockSection(title: "Evening", symbol: "moon", blocks: day.eveningBlocks, day: day, onPractise: onPractise)
+        TodayBlockSection(title: "Evening", symbol: "moon", blocks: day.eveningBlocks, day: day, onPractise: onPractise, viewModel: viewModel)
     }
 }
 
@@ -185,6 +186,7 @@ private struct TodayBlockSection: View {
     let blocks: [TodayPracticeBlockState]
     let day: TodayLoadedState
     let onPractise: ((AssignmentPracticeContext) -> Void)?
+    @ObservedObject var viewModel: TodayViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -207,11 +209,12 @@ private struct TodayBlockSection: View {
                     }
                     ForEach(block.assignments) { assignment in
                         TodayAssignmentView(assignment: assignment)
+                        TodayCompletionControls(assignment: assignment, blockID: block.id, viewModel: viewModel)
                         if let context = AssignmentPracticeContext(day: day, blockID: block.id, assignmentID: assignment.id) {
                             Button("Practise sight-reading") { onPractise?(context) }
                                 .buttonStyle(.borderedProminent)
                                 .frame(minHeight: 44)
-                                .disabled(onPractise == nil)
+                                .disabled(onPractise == nil || !viewModel.completionState.allowsNewAction)
                                 .accessibilityLabel("Practise sight-reading, \(assignment.title)")
                         } else {
                             Text("Assigned practice for this material is not available inside Pianovo yet.")
@@ -299,6 +302,137 @@ private struct TodayAssignmentView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+    }
+}
+
+private struct TodayCompletionControls: View {
+    let assignment: TodayAssignmentState
+    let blockID: PracticeBlockID
+    @ObservedObject var viewModel: TodayViewModel
+    @State private var showsConfirmation = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button(assignment.completionStatus == .completed ? "Undo completion" : "Mark complete") {
+                showsConfirmation = true
+            }
+            .buttonStyle(.bordered)
+            .frame(minHeight: 44)
+            .disabled(!viewModel.completionState.allowsNewAction)
+            .accessibilityLabel("\(assignment.completionStatus == .completed ? "Undo completion" : "Mark complete"), \(assignment.title)")
+            if viewModel.completionState.assignmentID == assignment.id {
+                TodayCompletionFeedback(viewModel: viewModel)
+            }
+        }
+        .sheet(isPresented: $showsConfirmation) {
+            TodayCompletionConfirmation(assignment: assignment) { components in
+                Task {
+                    await viewModel.setAssignmentCompleted(blockID: blockID, assignmentID: assignment.id,
+                        completed: assignment.completionStatus != .completed, confirmedComponents: components)
+                }
+            }
+        }
+    }
+}
+
+private struct TodayCompletionConfirmation: View {
+    let assignment: TodayAssignmentState
+    let confirm: (Set<ReferenceMaterialComponentID>) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var confirmedComponents: Set<ReferenceMaterialComponentID> = []
+    private var isUndo: Bool { assignment.completionStatus == .completed }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    Text(assignment.sourceTitle).font(.title2.bold())
+                    Text(isUndo
+                         ? "This returns the assignment to Not started. Your saved practice history and mastery status stay the same."
+                         : "Confirm that you practised this assignment. Work done outside Pianovo counts. This is your own report, not an assessment of mastery.")
+                    if !isUndo {
+                        ForEach(assignment.requiredCompletionComponents) { component in
+                            Toggle("I practised \(component.role.title)", isOn: Binding(
+                                get: { confirmedComponents.contains(component.id) },
+                                set: { checked in
+                                    if checked { confirmedComponents.insert(component.id) }
+                                    else { confirmedComponents.remove(component.id) }
+                                }
+                            ))
+                            .frame(minHeight: 44)
+                        }
+                        if !assignment.requiredCompletionComponents.isEmpty {
+                            Text("Both required parts must be practised to complete this one assignment.")
+                                .font(.callout).foregroundStyle(.secondary)
+                        }
+                    }
+                    Text("Your programme position will stay the same.").foregroundStyle(.secondary)
+                    Button(isUndo ? "Undo completion" : "Confirm completion") {
+                        confirm(confirmedComponents)
+                        dismiss()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .frame(minHeight: 44)
+                    .disabled(!isUndo && !Set(assignment.requiredCompletionComponents.map(\.id)).isSubset(of: confirmedComponents))
+                }
+                .padding(24)
+                .frame(maxWidth: 600, alignment: .leading)
+                .frame(maxWidth: .infinity)
+            }
+            .navigationTitle(isUndo ? "Undo completion" : "Record completion")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+        }
+    }
+}
+
+private struct TodayCompletionFeedback: View {
+    @ObservedObject var viewModel: TodayViewModel
+
+    var body: some View {
+        switch viewModel.completionState {
+        case .ready: EmptyView()
+        case .saving: ProgressView("Saving assignment status…")
+        case .failed(_, let failure):
+            VStack(alignment: .leading, spacing: 12) {
+                Label("Assignment status could not be confirmed", systemImage: "exclamationmark.triangle")
+                    .font(.headline)
+                Text(failure.message)
+                HStack {
+                    if failure.canRetry {
+                        Button("Retry save") { Task { await viewModel.retryCompletion() } }
+                            .buttonStyle(.borderedProminent).frame(minHeight: 44)
+                    }
+                    Button("Refresh Today") { Task { await viewModel.load() } }
+                        .buttonStyle(.bordered).frame(minHeight: 44)
+                }
+            }
+            .todayCard()
+        }
+    }
+}
+
+private extension TodayCompletionFailure {
+    var canRetry: Bool {
+        switch self {
+        case .progressLoadFailed, .saveFailed, .verificationFailed: true
+        default: false
+        }
+    }
+
+    var message: String {
+        switch self {
+        case .invalidAssignment, .requiredComponentsMissing:
+            "Refresh Today and confirm the assignment again, including every required part."
+        case .positionChanged:
+            "Your saved programme position changed. Refresh Today before recording completion."
+        case .persistenceUnavailable:
+            "Saved progress is unavailable. Close and reopen Pianovo to try again."
+        case .progressLoadFailed:
+            "Saved progress could not be checked. Retry save or refresh Today to read the latest status."
+        case .saveFailed, .verificationFailed:
+            "The change could not be confirmed in storage. Retry save or refresh Today to check whether it was saved. Refreshing does not undo an earlier save."
         }
     }
 }

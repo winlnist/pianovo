@@ -218,10 +218,10 @@ struct SwiftDataPracticeHistoryRepositoryTests {
         let pendingProgress = try Fixtures.activeProgress()
         originalContext.insert(ActiveProgrammeProgressModel(progress: pendingProgress))
         var shouldFail = true
-        let repository = SwiftDataPracticeHistoryRepository(context: originalContext) { writer in
+        let repository = SwiftDataPracticeHistoryRepository(context: originalContext, saveSessionContext: { writer in
             if shouldFail { throw SessionSaveFailure() }
             try writer.save()
-        }
+        })
         let record = try Fixtures.session()
         await #expect(throws: SessionSaveFailure.self) { try await repository.recordSession(record) }
         #expect(try ModelContext(container).fetch(FetchDescriptor<PracticeSessionModel>()).isEmpty)
@@ -241,10 +241,10 @@ struct SwiftDataPracticeHistoryRepositoryTests {
 
     @Test func ambiguousSessionSaveIsVisibleFromSeparateContextAndNeverReplaced() async throws {
         let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
-        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container)) { writer in
+        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container), saveSessionContext: { writer in
             try writer.save()
             throw SessionSaveFailure()
-        }
+        })
         let record = try Fixtures.session()
         await #expect(throws: SessionSaveFailure.self) { try await repository.recordSession(record) }
         let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
@@ -263,6 +263,82 @@ struct SwiftDataPracticeHistoryRepositoryTests {
             try await repository.recordSession(record)
         }
         #expect(try await repository.chronologicalHistory().isEmpty)
+    }
+
+    @Test func failedCompletionInsertionAndUpdateKeepDurableStateAndOtherPendingData() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let original = ModelContext(container)
+        original.autosaveEnabled = false
+        original.insert(ActiveProgrammeProgressModel(progress: try Fixtures.activeProgress()))
+        var shouldFail = true
+        let repository = SwiftDataPracticeHistoryRepository(context: original, saveCompletionContext: { writer in
+            if shouldFail { throw SessionSaveFailure() }
+            try writer.save()
+        })
+        let initial = try Fixtures.completion(status: .inProgress)
+        await #expect(throws: SessionSaveFailure.self) { try await repository.updateAssignmentCompletion(initial) }
+        let programmeID = initial.programme.programmeID
+        #expect(try await repository.loadProgress(programmeID: programmeID)?.assignmentCompletions.isEmpty == true)
+        #expect(try ModelContext(container).fetch(FetchDescriptor<AssignmentCompletionModel>()).isEmpty)
+        #expect(original.hasChanges)
+        #expect(try original.fetch(FetchDescriptor<ActiveProgrammeProgressModel>()).count == 1)
+        shouldFail = false
+        try await repository.updateAssignmentCompletion(initial)
+        shouldFail = true
+        let timestamp = try Fixtures.timestamp("2026-09-02T10:45:00Z", timeZoneID: "Europe/London")
+        let changed = try Fixtures.completion(status: .completed, updatedAt: timestamp, completedAt: timestamp)
+        await #expect(throws: SessionSaveFailure.self) { try await repository.updateAssignmentCompletion(changed) }
+        let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        #expect(try await repository.loadProgress(programmeID: programmeID)?.assignmentCompletions == [initial])
+        #expect(try await reader.loadProgress(programmeID: programmeID)?.assignmentCompletions == [initial])
+        #expect(try ModelContext(container).fetch(FetchDescriptor<ActiveProgrammeProgressModel>()).isEmpty)
+        #expect(original.hasChanges)
+        shouldFail = false
+        try await repository.updateAssignmentCompletion(changed)
+        #expect(try await reader.loadProgress(programmeID: programmeID)?.assignmentCompletions == [changed])
+    }
+
+    @Test func ambiguousCompletionSaveIsDurableAndNoOpSaveDoesNotClaimSuccess() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container), saveCompletionContext: { writer in
+            try writer.save()
+            throw SessionSaveFailure()
+        })
+        let record = try Fixtures.completion()
+        await #expect(throws: SessionSaveFailure.self) { try await repository.updateAssignmentCompletion(record) }
+        let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        #expect(try await reader.loadProgress(programmeID: record.programme.programmeID)?.assignmentCompletions == [record])
+        let noOp = SwiftDataPracticeHistoryRepository(context: ModelContext(container), saveCompletionContext: { _ in })
+        let timestamp = try Fixtures.timestamp("2026-09-02T10:45:00Z", timeZoneID: "Europe/London")
+        let changed = try Fixtures.completion(status: .completed, updatedAt: timestamp, completedAt: timestamp)
+        await #expect(throws: PracticeHistoryRepositoryError.self) { try await noOp.updateAssignmentCompletion(changed) }
+        #expect(try await reader.loadProgress(programmeID: record.programme.programmeID)?.assignmentCompletions == [record])
+    }
+
+    @Test func todayCompletionAndUndoRestoreUsingSeparateSwiftDataContexts() async throws {
+        let container = try PracticeHistoryModelContainerFactory.makeContainer(inMemory: true)
+        let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        let progress = try Fixtures.activeProgress()
+        try await repository.saveActiveProgress(progress)
+        let model = TodayViewModel(progressRepository: repository, practiceHistoryRepository: repository)
+        await model.load()
+        guard case .loaded(let day) = model.state else { Issue.record("Expected loaded Today"); return }
+        let block = try #require(day.morningBlocks.first { $0.category == .sightReading })
+        let assignment = try #require(block.assignments.first)
+        await model.setAssignmentCompleted(blockID: block.id, assignmentID: assignment.id, completed: true)
+        #expect(model.completionState == .ready)
+        let reader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        let reopened = TodayViewModel(progressRepository: reader, practiceHistoryRepository: reader)
+        await reopened.load()
+        guard case .loaded(let restored) = reopened.state else { Issue.record("Expected restored Today"); return }
+        #expect(restored.allBlocks.flatMap(\.assignments).first { $0.id == assignment.id }?.completionStatus == .completed)
+        await reopened.setAssignmentCompleted(blockID: block.id, assignmentID: assignment.id, completed: false)
+        let finalReader = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
+        let snapshot = try #require(try await finalReader.loadProgress(programmeID: progress.programme.programmeID))
+        #expect(snapshot.activeProgress == progress)
+        #expect(snapshot.assignmentCompletions.first?.status == .notStarted)
+        #expect(snapshot.assignmentCompletions.first?.completedAt == nil)
+        #expect(try await finalReader.chronologicalHistory().isEmpty)
     }
 
     private func makeRepository() throws -> SwiftDataPracticeHistoryRepository {

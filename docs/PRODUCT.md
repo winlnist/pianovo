@@ -48,18 +48,22 @@ The paper-like score remains stable while an auto-hiding HUD exposes MIDI status
 - A logical catalogue for Beyer and supporting practice material; the source documents are not bundled or openable in the app.
 - A limited MusicXML importer and a development-only Verovio fixture renderer.
 
-Milestone 6F.4 connects only the generated sight-reading assignment to an explicit session flow: preparation, Start Session, MIDI Practice, End & Save, immediate summary, and return to Today. Preparation shows the assignment goal and planned duration and lets the learner choose Treble/Bass and a natural-note range. Configuration and reset are locked while the assigned session is active. Other assignments remain informational; Beyer is never substituted with random notation.
+Milestone 6F.4 connects only the generated sight-reading assignment to an explicit session flow: preparation, Start Session, MIDI Practice, End & Save, immediate summary, and return to Today. Preparation shows the assignment goal and planned duration and lets the learner choose Treble/Bass and a natural-note range. Configuration and reset are locked while the assigned session is active. Other assignments cannot launch in-app Practice; Beyer is never substituted with random notation.
 
 End & Save records one stopped session with its stable programme/week/day/block/assignment/source context and timestamps. Numeric statistics are temporary feedback in the immediate summary, not saved history. Ending does not mark an assignment complete, evaluate mastery, create attempts/reflections, or advance programme position. Standalone Practice remains available without persistence.
 
 Temporary inactivity suspends MIDI input. Backgrounding freezes the session at the observed time; returning offers save or discard, not resume. Discard performs no write. Force-quit recovery is not supported: unsaved sessions may be lost. No duration is invented after termination.
+
+Milestone 6F.5 adds explicit learner-reported completion and undo for every assignment in the current saved day, including work practised outside Pianovo and recovery/reflection work. Confirming Beyer No. 63 requires acknowledging both Seconda and Prima as parts of one assignment. These acknowledgements are not component-level progress records or evidence of mastery. Undo returns the assignment to Not started and clears its completion time while keeping sessions, notes, and mastery records.
+
+Completion is independent of End & Save. It writes only the existing assignment completion record, never session statistics, a mastery decision, a reflection, or a new programme position. Failures retain the displayed status until the change is verified; retry keeps the original intent and timestamp. Refresh Today reads durable status and abandons any pending retry, without undoing an earlier successful save.
 
 The remaining foundations must not be presented as working Progress, History, document-library, or imported-song experiences.
 
 ## Near-term product direction
 
 - Extend assigned practice only when its source can be presented honestly.
-- Add explicit assignment-completion and progress workflows separately from session recording.
+- Define explicit programme progression separately from self-reported completion and session recording.
 - Present user-imported or legally distributable reference material.
 - Add score-aligned MIDI timing and correctness analysis.
 - Expose progress in a way that is useful to both learner and teacher.
@@ -88,7 +92,7 @@ The remaining foundations must not be presented as working Progress, History, do
 - No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
 - No persisted numeric statistics; assigned sight-reading saves session context and times only.
 - No functional Progress, Library, History, teacher, or settings workflows.
-- No assignment-completion controls, automatic mastery, generic guided sessions, or durable active-session recovery.
+- No programme-advancement controls, automatic mastery, generic guided sessions, or durable active-session recovery.
 - No production MusicXML file picker or imported-song practice.
 - No PDF/photo import, optical music recognition, or score correction UI.
 - No MIDI recording timeline, tempo assessment, audio analysis, or playback.

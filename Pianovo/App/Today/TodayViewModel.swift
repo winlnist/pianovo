@@ -5,6 +5,9 @@ import Foundation
 final class TodayViewModel: ObservableObject {
     @Published private(set) var state: TodayViewState = .idle
     @Published private(set) var startState: TodayStartState = .ready
+    @Published private(set) var completionState: TodayCompletionState = .ready
+    private var pendingCompletion: TodayCompletionRequest?
+    private var pendingCompletionRecord: AssignmentCompletionState?
     private var isPerformingOperation = false
 
     private let programmeSeed: ProgrammeSeed?
@@ -54,6 +57,9 @@ final class TodayViewModel: ObservableObject {
         isPerformingOperation = true
         defer { isPerformingOperation = false }
         startState = .ready
+        completionState = .ready
+        pendingCompletion = nil
+        pendingCompletionRecord = nil
         await loadState()
     }
 
@@ -113,6 +119,94 @@ final class TodayViewModel: ObservableObject {
 
         startState = .ready
         await loadState()
+    }
+
+    func setAssignmentCompleted(blockID: PracticeBlockID, assignmentID: PracticeAssignmentID,
+                                completed: Bool, confirmedComponents: Set<ReferenceMaterialComponentID> = []) async {
+        guard !isPerformingOperation, completionState.allowsNewAction,
+              case .loaded(let day) = state else { return }
+        guard let block = day.allBlocks.first(where: { $0.id == blockID }),
+              let assignment = block.assignments.first(where: { $0.id == assignmentID }) else {
+            completionState = .failed(assignmentID, .invalidAssignment)
+            return
+        }
+        if completed && !Set(assignment.requiredCompletionComponents.map(\.id)).isSubset(of: confirmedComponents) {
+            completionState = .failed(assignmentID, .requiredComponentsMissing)
+            return
+        }
+        let temporal = PracticeTemporalContext(clock: clock, localContextProvider: localContextProvider)
+        pendingCompletion = TodayCompletionRequest(
+            programme: ProgrammeDefinitionReference(programmeID: day.programme.programmeID,
+                                                    programmeVersion: day.programme.programmeVersion),
+            weekID: day.weekID, dayID: day.dayID, assignmentID: assignment.id, sourceID: assignment.sourceID,
+            status: completed ? .completed : .notStarted,
+            timestamp: PracticeTimestamp(instant: temporal.now, localDay: temporal.localDay)
+        )
+        await savePendingCompletion()
+    }
+
+    func retryCompletion() async {
+        guard case .failed = completionState else { return }
+        await savePendingCompletion()
+    }
+
+    private func savePendingCompletion() async {
+        guard !isPerformingOperation, let request = pendingCompletion,
+              case .loaded(let day) = state else { return }
+        isPerformingOperation = true
+        completionState = .saving(request.assignmentID)
+        defer { isPerformingOperation = false }
+        do {
+            guard let repository = progressRepository else { throw TodayCompletionFailure.persistenceUnavailable }
+            let snapshot = try await completionSnapshot(repository, request: request)
+            let existing = snapshot.assignmentCompletions.first { $0.assignmentID == request.assignmentID }
+            if let existing, existing.programme != request.programme || existing.sourceID != request.sourceID {
+                throw TodayCompletionFailure.invalidAssignment
+            }
+            // A repeated action (including an ambiguously successful save) is a fresh read, not another write.
+            if existing?.status != request.status && !(existing == nil && request.status == .notStarted) {
+                if pendingCompletionRecord == nil {
+                    pendingCompletionRecord = AssignmentCompletionState(
+                        programme: request.programme, assignmentID: request.assignmentID, sourceID: request.sourceID,
+                        status: request.status, updatedAt: request.timestamp,
+                        completedAt: request.status == .completed ? request.timestamp : nil, note: existing?.note
+                    )
+                }
+                do {
+                    try await repository.updateAssignmentCompletion(pendingCompletionRecord!)
+                } catch { throw TodayCompletionFailure.saveFailed }
+                let verified = try await completionSnapshot(repository, request: request)
+                guard verified.assignmentCompletions.contains(pendingCompletionRecord!) else {
+                    throw TodayCompletionFailure.verificationFailed
+                }
+            }
+            state = .loaded(day.updatingCompletion(assignmentID: request.assignmentID, status: request.status))
+            pendingCompletion = nil
+            pendingCompletionRecord = nil
+            completionState = .ready
+        } catch let failure as TodayCompletionFailure {
+            completionState = .failed(request.assignmentID, failure)
+        } catch {
+            completionState = .failed(request.assignmentID, .progressLoadFailed)
+        }
+    }
+
+    private func completionSnapshot(_ repository: any ProgrammeProgressRepository,
+                                    request: TodayCompletionRequest) async throws -> ProgrammeProgressSnapshot {
+        let snapshot: ProgrammeProgressSnapshot?
+        do { snapshot = try await repository.loadProgress(programmeID: request.programme.programmeID) }
+        catch { throw TodayCompletionFailure.progressLoadFailed }
+        guard let snapshot, let active = snapshot.activeProgress,
+              active.programme == request.programme,
+              active.currentWeekID == request.weekID, active.currentDayID == request.dayID,
+              let programme = programmeSeed?.programme, programme.id == request.programme.programmeID,
+              programme.version == request.programme.programmeVersion,
+              let week = programme.weeks.first(where: { $0.id == request.weekID }),
+              let day = week.days.first(where: { $0.id == request.dayID }),
+              day.blocks.flatMap(\.assignments).contains(where: {
+                  $0.id == request.assignmentID && $0.sourceID == request.sourceID
+              }) else { throw TodayCompletionFailure.positionChanged }
+        return snapshot
     }
 
     private func loadState() async {

@@ -88,3 +88,13 @@ Numeric `PracticeStatistics` are shown only in the immediate summary. V1 has no 
 `recordSession` uses a fresh context with autosave disabled, rolls back that context on failure, and verifies success using a separate reader. This does not roll back pending work in the repository's original context. Session events in `chronologicalHistory` are read from a fresh context so duplicate reconciliation cannot mistake an unsaved insertion for durable success. Other repository operations retain their existing semantics.
 
 Retry preserves the exact identity, context, timestamps, and outcome. An existing identical durable record confirms success; a conflicting duplicate is a structured failure and is never overwritten. No schema migration or repository protocol change is required.
+
+## Self-Reported Assignment Completion (6F.5)
+
+Today writes the existing `AssignmentCompletionState` on an explicit learner confirmation. All current-day assignments are eligible, including outside-app work. Beyer required-part confirmations are transient UI acknowledgements checked by the application layer, not persisted component records. There is no automatic completion from session saving or inferred mastery.
+
+Mark complete uses one injected timestamp for `updatedAt` and `completedAt`; Undo completion writes `.notStarted`, a new `updatedAt`, and nil `completedAt`. Existing notes remain intact. Programme position, session/history records, and mastery records are unchanged.
+
+Completion upserts use an isolated context with autosave disabled, rollback on failure, and a separate durable reader. `loadProgress` reads completion models from a fresh context; its active-progress read retains its existing semantics. Pending changes in the original context are not saved or rolled back by completion writes. The V1 schema and repository protocols stay unchanged.
+
+The application serializes actions, checks the saved position before writing, and verifies durable completion afterward. Retry preserves the original intent and timestamp; a matching desired status already in storage needs no new write. Refresh reads stored state and clears the pending retry without undoing a save that reached storage. Independent concurrent progress writers and component-level progress remain future work.

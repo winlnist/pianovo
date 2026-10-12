@@ -6,7 +6,7 @@ Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Today provid
 
 The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Progress history, document access, and teacher-guided planning remain future workflows supported by implemented foundations.
 
-> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Assignment completion, document access, and teacher workflows remain planned.
+> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Milestone 6F.5 adds explicit learner-reported assignment completion and undo. Programme advancement, document access, and teacher workflows remain planned.
 
 ## App preview
 
@@ -28,6 +28,15 @@ Both images are direct captures of the running app on an iPad Pro 11-inch (M5) s
 - Represents reference-material availability honestly, keeping assignments visible even when documents are unavailable.
 - Provides structured loading, unavailable, and failure states, with retry where appropriate.
 - Uses responsive native iPhone/iPad layouts, including two columns at suitable widths, Dynamic Type, and VoiceOver labels.
+
+### Self-reported assignment completion
+
+- **Mark complete** and **Undo completion** work for every assignment in the current saved day, including outside-app practice and recovery/reflection work.
+- Beyer No. 63 requires confirmation that both **Seconda** and **Prima** were practised before completing the one assignment.
+- Completion status persists across app launches. Failed changes support retry or a fresh read of Today.
+- Completion is the learner’s report, not an assessment of mastery. Undo returns the assignment to Not started while preserving practice history and mastery status.
+
+Completion is separate from saving a session and does not advance programme position.
 
 ### Assigned sight-reading sessions
 
@@ -59,7 +68,7 @@ These implemented and tested components support the app and future work; their p
 - A framework-independent Music Domain and Full Score Domain with stable event identifiers.
 - A limited MusicXML `score-partwise` importer.
 - Development-only full-score rendering of MusicXML fixtures with Verovio.
-- A validated twelve-week programme model used by Today; assignment completion and programme progression controls remain deferred.
+- A validated twelve-week programme model used by Today; programme progression controls remain deferred.
 - SwiftData repositories for programme progress, sessions, attempts, reflections, and mastery decisions.
 - A logical reference-material catalogue that keeps licensing and file availability explicit.
 - Production dependency composition and Today presentation state, now connected to the working Today screen.
@@ -141,12 +150,14 @@ The current Practice experience was also manually verified on 27 September 2026 
 
 The 6F.4 assigned sight-reading flow was also manually validated on a physical iPad with a Yamaha P-45: preparation, session start, MIDI input and statistics, assigned-session controls, End & Save and its immediate summary, return to Today with programme position preserved, and the tested interruption/background behaviour. Standalone Practice remained operational.
 
+Milestone 6F.5 automated verification passed **231 tests across 23 suites**, including completion/undo restoration and save-failure handling. The completion controls were also manually validated on a physical iPad: marking complete, undoing completion, restoration after reopening, required Beyer parts, and independence from assigned-session saving.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
 - Generated exercises use natural pitches and quarter-note notation rather than full musical context.
 - Assigned sight-reading saves session context and times, but numeric statistics remain temporary. Standalone Practice does not save sessions.
-- Today has no assignment-completion action, automatic mastery evaluation, or controls to advance programme position.
+- Today has no automatic mastery evaluation or controls to advance programme position.
 - Unsaved assigned sessions cannot be recovered after the app closes; force-quit recovery is deferred.
 - Progress, Library, History, Ask My Teacher, and Settings remain placeholder screens.
 - Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
@@ -157,7 +168,7 @@ The 6F.4 assigned sight-reading flow was also manually validated on a physical i
 
 ## Next milestones
 
-1. Add explicit assignment-completion and programme progression workflows, separate from session recording.
+1. Define programme progression and its mastery policy separately from self-reported completion and session recording.
 2. Introduce document access and licensed/user-imported reference-material presentation.
 3. Add score-aligned MIDI timing and correctness analysis.
 4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
