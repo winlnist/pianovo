@@ -6,7 +6,7 @@ Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Today provid
 
 The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Progress history, document access, and teacher-guided planning remain future workflows supported by implemented foundations.
 
-> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.3 completes explicit programme start and saved-day presentation; session recording, document access, and teacher workflows remain planned.
+> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Assignment completion, document access, and teacher workflows remain planned.
 
 ## App preview
 
@@ -29,7 +29,14 @@ Both images are direct captures of the running app on an iPad Pro 11-inch (M5) s
 - Provides structured loading, unavailable, and failure states, with retry where appropriate.
 - Uses responsive native iPhone/iPad layouts, including two columns at suitable widths, Dynamic Type, and VoiceOver labels.
 
-Today currently starts the programme and displays its saved plan and status. It does not start or record assignment-specific sessions, mark assignments complete through the UI, automatically evaluate mastery, or open reference documents.
+### Assigned sight-reading sessions
+
+- Launch a generated sight-reading assignment from Today, review its goal and planned duration, and choose Treble/Bass and a natural-note range before **Start Session**.
+- Practise with MIDI input using the existing notation and statistics; mode, range, and reset controls are locked during the assigned session.
+- **End & Save** stores the assignment context, start/end times and local-day context, and a stopped outcome, then shows an immediate summary of the actual session statistics.
+- Retry a failed save using the same session identity. Backgrounding freezes the session; returning offers save or discard without resuming or counting background time.
+
+Only generated sight-reading assignments are actionable; other assignments remain informational. Saving does not mark an assignment complete, evaluate mastery, or advance the programme. Numeric statistics remain temporary, and Today cannot open reference documents.
 
 ### MIDI sight-reading Practice
 
@@ -52,7 +59,7 @@ These implemented and tested components support the app and future work; their p
 - A framework-independent Music Domain and Full Score Domain with stable event identifiers.
 - A limited MusicXML `score-partwise` importer.
 - Development-only full-score rendering of MusicXML fixtures with Verovio.
-- A validated twelve-week programme model used by Today; session lifecycle and programme progression controls remain deferred.
+- A validated twelve-week programme model used by Today; assignment completion and programme progression controls remain deferred.
 - SwiftData repositories for programme progress, sessions, attempts, reflections, and mastery decisions.
 - A logical reference-material catalogue that keeps licensing and file availability explicit.
 - Production dependency composition and Today presentation state, now connected to the working Today screen.
@@ -126,18 +133,21 @@ xcodebuild \
 
 ### Verified baseline
 
-Milestone 6F.3 completed a clean simulator build and all **191 tests across 20 suites passed** using an iPad Pro 11-inch (M5) simulator. The existing Practice portfolio captures were produced from the running app on iPadOS 27.0.
+Milestone 6F.4 completed a clean simulator build and all **213 tests across 22 suites passed** using an iPad Pro 11-inch (M5) simulator. The existing Practice portfolio captures were produced from the running app on iPadOS 27.0.
 
 The Today experience was manually validated on a physical iPad: initial navigation, explicit start at Week 1 Day 1, Morning/Evening sections, Beyer No. 63 with Seconda and Prima, honest document availability, position restoration after reopening, and portrait/landscape layouts. Practice remained operational.
 
 The current Practice experience was also manually verified on 27 September 2026 using a physical iPad Pro with an M5 processor and a Yamaha P-45 digital piano connected directly by a USB-B to USB-C cable for USB MIDI. Pianovo received the played notes, correctly played notes advanced the sight-reading exercise, and session statistics updated, confirming that the core Practice workflow operated successfully on physical hardware.
 
+The 6F.4 assigned sight-reading flow was also manually validated on a physical iPad with a Yamaha P-45: preparation, session start, MIDI input and statistics, assigned-session controls, End & Save and its immediate summary, return to Today with programme position preserved, and the tested interruption/background behaviour. Standalone Practice remained operational.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
 - Generated exercises use natural pitches and quarter-note notation rather than full musical context.
-- Session statistics are not yet connected to the SwiftData history foundation.
-- Today has no assignment-specific session recording, completion action, automatic mastery evaluation, or controls to advance programme position.
+- Assigned sight-reading saves session context and times, but numeric statistics remain temporary. Standalone Practice does not save sessions.
+- Today has no assignment-completion action, automatic mastery evaluation, or controls to advance programme position.
+- Unsaved assigned sessions cannot be recovered after the app closes; force-quit recovery is deferred.
 - Progress, Library, History, Ask My Teacher, and Settings remain placeholder screens.
 - Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
 - MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
@@ -147,7 +157,7 @@ The current Practice experience was also manually verified on 27 September 2026 
 
 ## Next milestones
 
-1. Connect practice sessions and assignment completion to the persistence/history foundation.
+1. Add explicit assignment-completion and programme progression workflows, separate from session recording.
 2. Introduce document access and licensed/user-imported reference-material presentation.
 3. Add score-aligned MIDI timing and correctness analysis.
 4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
