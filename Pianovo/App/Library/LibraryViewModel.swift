@@ -91,15 +91,17 @@ final class LibraryEditorViewModel: ObservableObject {
     @Published var draft: LibraryExerciseDraft
     @Published private(set) var saveState: LibraryActionState = .ready
     private let original: LibraryExercise?
+    private let sourceTemplate: LibraryExerciseTemplateRevision?
     private let repository: (any LibraryExerciseRepository)?
     private let clock: any PracticeClock
     private let makeUUID: () -> UUID
     private var pending: LibraryMutation?
 
-    init(exercise: LibraryExercise? = nil, repository: (any LibraryExerciseRepository)?,
+    init(exercise: LibraryExercise? = nil, template: LibraryExerciseTemplateRevision? = nil, repository: (any LibraryExerciseRepository)?,
          clock: any PracticeClock = SystemPracticeClock(), makeUUID: @escaping () -> UUID = UUID.init) {
         original = exercise
-        draft = exercise?.currentRevision.content ?? LibraryExerciseDraft()
+        sourceTemplate = exercise == nil ? template : nil
+        draft = exercise?.currentRevision.content ?? template?.content.defaults ?? LibraryExerciseDraft()
         self.repository = repository
         self.clock = clock
         self.makeUUID = makeUUID
@@ -107,7 +109,7 @@ final class LibraryEditorViewModel: ObservableObject {
 
     var isEditing: Bool { original != nil }
     var canEdit: Bool { pending == nil && saveState != .saving && saveState != .saved }
-    var hasChanges: Bool { draft != (original?.currentRevision.content ?? LibraryExerciseDraft()) }
+    var hasChanges: Bool { pending != nil || draft != (original?.currentRevision.content ?? sourceTemplate?.content.defaults ?? LibraryExerciseDraft()) }
 
     func save() async -> LibraryExercise? {
         guard saveState != .saving && saveState != .saved else { return nil }
@@ -122,7 +124,8 @@ final class LibraryEditorViewModel: ObservableObject {
                 id: LibraryRevisionID(rawValue: makeUUID()),
                 exerciseID: original?.id ?? LibraryExerciseID(rawValue: makeUUID()),
                 parentRevisionID: original?.currentRevision.id,
-                content: content, createdAt: clock.now, origin: original?.currentRevision.origin
+                content: content, createdAt: clock.now, origin: original?.currentRevision.origin,
+                templateOrigin: original?.currentRevision.templateOrigin ?? sourceTemplate.map(LibraryTemplateOrigin.init)
             )
             if let original { pending = .revise(revision, replacing: original.currentRevision.id) }
             else { pending = .create(revision) }

@@ -3,6 +3,7 @@ import SwiftData
 
 @MainActor
 struct AppDependencies {
+    let templateRepository: (any LibraryExerciseTemplateRepository)?
     let libraryRepository: (any LibraryExerciseRepository)?
     let libraryPersistenceStatus: AppPersistenceStatus
     private let retainedLibraryContainer: ModelContainer?
@@ -23,8 +24,10 @@ struct AppDependencies {
         persistenceStatus: AppPersistenceStatus,
         retainedModelContainer: ModelContainer? = nil,
         libraryRepository: (any LibraryExerciseRepository)? = nil,
-        retainedLibraryContainer: ModelContainer? = nil
+        retainedLibraryContainer: ModelContainer? = nil,
+        templateRepository: (any LibraryExerciseTemplateRepository)? = nil
     ) {
+        self.templateRepository = templateRepository
         self.libraryRepository = libraryRepository
         self.libraryPersistenceStatus = libraryRepository == nil ? .unavailable : .available
         self.retainedLibraryContainer = retainedLibraryContainer
@@ -52,14 +55,16 @@ struct AppDependencies {
         ),
         referenceMaterialResolver: any ReferenceMaterialResolving = PianovoReferenceMaterialCatalogue.resolver()
     ) -> AppDependencies {
-        AppDependencies(
+        let ownerID = LibraryOwnerID(rawValue: UUID())
+        return AppDependencies(
             progressRepository: repository,
             practiceHistoryRepository: repository,
             referenceMaterialResolver: referenceMaterialResolver,
             clock: clock,
             localContextProvider: localContextProvider,
             persistenceStatus: .available,
-            libraryRepository: InMemoryLibraryExerciseRepository()
+            libraryRepository: InMemoryLibraryExerciseRepository(ownerID: ownerID),
+            templateRepository: InMemoryLibraryExerciseTemplateRepository(ownerID: ownerID)
         )
     }
 

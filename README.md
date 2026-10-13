@@ -68,7 +68,16 @@ Practice remains directly available from navigation. Progress, History, Ask My T
 - Retain stable exercise identity and earlier saved revisions across edits and app launches.
 - Retry failed writes or refresh to check durable saved status.
 
-Library exercises are private written guidance on the device. They do not yet launch MIDI Practice or appear in Today. Exercise templates, programme editing, document import, teacher sharing, cloud sync, and AI coaching remain planned. Exercise creation, archiving, and restoration have been manually validated.
+Library exercises are private written guidance on the device. They do not yet launch MIDI Practice or appear in Today. Programme editing, document import, teacher sharing, cloud sync, and AI coaching remain planned. Exercise creation, archiving, and restoration have been manually validated.
+
+### Reusable exercise templates
+
+- Create or edit private templates with a name and exercise defaults; optionally begin with a Pianovo starter pattern.
+- Browse/search, archive, and restore templates in Library → Exercise templates.
+- **Create exercise** opens a pre-filled form you can adapt before saving an independent exercise.
+- Preserve the source template version as origin; later template changes leave existing exercises untouched.
+
+Templates contain written defaults, not automatically generated notation or programme assignments. Programme templates, scheduling, sharing, and AI remain future work. The Library V1-to-V2 migration preserves existing exercises and revisions. Manual validation confirmed template navigation and exercise creation from a template.
 
 ## Implemented foundations
 
@@ -163,6 +172,8 @@ Milestone 6F.5 automated verification passed **231 tests across 23 suites**, inc
 
 Milestone 6F.7 automated verification passed **255 tests across 26 suites** and a clean simulator app build. Library validation covers disk restoration, immutable revisions, failed-save retry, stale edits, archive/restore, and preservation of the existing progress store. Manual validation confirmed exercise creation, archiving, and restoration.
 
+Milestone 6F.8 automated verification passed **269 tests across 28 suites** and a clean simulator build, including a real V1-to-V2 Library migration and independent exercise creation from template revisions. Manual validation confirmed template navigation and exercise creation from a template.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
@@ -179,7 +190,7 @@ Milestone 6F.7 automated verification passed **255 tests across 26 suites** and 
 
 ## Next milestones
 
-1. Validate the local exercise Library, then add exercise/programme templates and editable learner plans; define progression separately from completion and mastery.
+1. Add programme templates and editable learner plans; define progression separately from completion and mastery.
 2. Introduce document access and licensed/user-imported reference-material presentation.
 3. Add score-aligned MIDI timing and correctness analysis.
 4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.

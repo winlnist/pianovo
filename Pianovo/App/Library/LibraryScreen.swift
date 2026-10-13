@@ -2,15 +2,17 @@ import SwiftUI
 
 struct LibraryScreen: View {
     @StateObject private var model: LibraryViewModel
+    private let templateRepository: (any LibraryExerciseTemplateRepository)?
     @State private var search = ""
     @State private var showsArchived = false
     @State private var editing: LibraryEditingContext?
 
     init(dependencies: AppDependencies) {
+        templateRepository = dependencies.templateRepository
         _model = StateObject(wrappedValue: LibraryViewModel(repository: dependencies.libraryRepository, clock: dependencies.clock))
     }
 
-    init(viewModel: LibraryViewModel) { _model = StateObject(wrappedValue: viewModel) }
+    init(viewModel: LibraryViewModel) { templateRepository = nil; _model = StateObject(wrappedValue: viewModel) }
 
     var body: some View {
         NavigationStack {
@@ -22,6 +24,13 @@ struct LibraryScreen: View {
                         Text("Active").tag(false)
                         Text("Archived").tag(true)
                     }.pickerStyle(.segmented)
+                }
+                Section {
+                    NavigationLink {
+                        ExerciseTemplatesScreen(repository: templateRepository, exerciseRepository: model.repository, clock: model.clock) {
+                            model.acceptSaved($0)
+                        }
+                    } label: { Label("Exercise templates", systemImage: "doc.on.doc") }
                 }
                 feedback
                 Section {
@@ -135,6 +144,12 @@ private struct LibraryExerciseDetail: View {
                 Text("Saved \(exercise.currentRevision.createdAt.formatted(date: .abbreviated, time: .shortened))")
                     .font(.caption).foregroundStyle(.secondary)
                 if let attribution = exercise.currentRevision.origin?.creatorAttribution { Text("Original creator: \(attribution)") }
+                if let origin = exercise.currentRevision.templateOrigin {
+                    Text("Created from template: \(origin.name)")
+                    Text("This exercise keeps the template version used. Later template edits do not change it.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    if let creator = origin.creatorAttribution { Text(creator).font(.caption) }
+                }
                 HStack {
                     Button("Edit exercise", action: edit).buttonStyle(.borderedProminent)
                         .disabled(exercise.isArchived || !model.allowsActions)
@@ -152,7 +167,7 @@ private struct LibraryExerciseDetail: View {
     }
 }
 
-private struct LibraryExerciseEditor: View {
+struct LibraryExerciseEditor: View {
     @StateObject var model: LibraryEditorViewModel
     let saved: (LibraryExercise) -> Void
     @Environment(\.dismiss) private var dismiss
@@ -216,14 +231,15 @@ extension LibraryExerciseCategory {
     }
 }
 
-private extension LibraryActionFailure {
+extension LibraryActionFailure {
     var message: String {
         switch self {
         case .unavailable: "Saved Library is unavailable. Reopen Pianovo to try again."
         case .storage: "Saving could not be confirmed. Retry the same change or close and refresh Library to check its stored status."
-        case .conflict: "This exercise changed or was archived. Close and refresh Library before editing it again."
+        case .conflict: "This content changed or was archived. Close and refresh before editing it again."
         case .invalid(let issues): issues.map {
             switch $0 {
+            case .templateNameRequired: "Enter a template name."
             case .titleRequired: "Enter a title."
             case .instructionsRequired: "Enter instructions."
             case .purposeRequired: "Enter a learning purpose."

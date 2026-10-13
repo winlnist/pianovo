@@ -14,7 +14,7 @@ This boundary matters when describing the product:
 
 ## Planned content and hosted-service architecture (6F.6)
 
-The agreed direction adds reusable exercise templates, authored exercise revisions, programme templates, independent learner programme instances, and scheduled assignments. These are proposed boundaries, not existing Swift types or storage models. See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md).
+The agreed direction adds reusable exercise templates, authored exercise revisions, programme templates, independent learner programme instances, and scheduled assignments. Exercises and exercise templates now have local Swift types/storage; programme-template and learner-plan editor boundaries remain proposed. See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md).
 
 Content/programme rules remain framework-independent. Application services own authoring, instantiation, and explicit update adoption. Planned local SwiftData content repositories will provide real offline storage; future API/sync adapters will connect the same identities and revisions to a hosted service. Content repositories stay separate from progress/history repositories. Views do not own storage or network orchestration, and the Music Domain remains unchanged.
 
@@ -32,7 +32,15 @@ The first implementation is a private local exercise Library. Storage topology a
 
 `LibraryExerciseRepository` is an explicitly MainActor async/throwing application boundary with separate SwiftData and preview adapters. Foundation-only Library values do not depend on SwiftUI, SwiftData, MIDI, rendering, or networking. A separately named/versioned `PianovoLibrary` container has no CloudKit integration and leaves the current progress V1 store unchanged. Library/progress bootstraps fail independently with no temporary production fallback. Fresh writer/reader contexts and durable verification prevent phantom success after failed writes.
 
-Only Library replaces its placeholder. Authored exercises are written guidance and cannot launch Practice or enter Today yet. Scheduling, templates, AI, shared accounts, and backend services remain future work. See [Content and Programmes](CONTENT_AND_PROGRAMMES.md) for storage/version compatibility and migration gates.
+Only Library replaces its placeholder. Authored exercises are written guidance and cannot launch Practice or enter Today yet. Scheduling, programme templates, AI, shared accounts, and backend services remain future work. See [Content and Programmes](CONTENT_AND_PROGRAMMES.md) for storage/version compatibility and migration gates.
+
+## Exercise template implementation (6F.8)
+
+`ExerciseTemplateViewModel` and a screen-owned template editor manage private reusable defaults and serialize load/write/retry actions. Using a template opens the existing exercise editor with a frozen template revision. New exercises receive distinct exercise/revision identities and optional typed `LibraryTemplateOrigin` metadata. Template revisions and starter-pattern provenance are immutable; created exercises remain independent. No scheduled assignments or practice records are written.
+
+`LibrarySchemaV2` adds template headers/revisions while reusing the unchanged original V1 store-model definitions. The migration plan has an explicit lightweight V1-to-V2 stage; disk tests recreate the exact 6F.7 schema/store and verify preservation before template writes. Exercise JSON payloads decode the added optional template-origin field as nil for legacy records. This does not change the progress/history schema or interpret template IDs as exercise IDs.
+
+Exercise/template adapters share the persistent local owner in the same retained Library container. Template writes use isolated writer contexts, durable read verification, stable retry requests, and expected-revision checks. Starter patterns only prefill a draft on request. Typed parameter interpolation, programme templates, remote sharing, and AI remain deferred.
 
 ## Dependency Rule
 
@@ -309,4 +317,4 @@ The current suites cover:
 - Reference-material resolution and Beyer Prima/Seconda metadata.
 - Today presentation state and dependency bootstrap.
 
-The current automated implementation verification (6F.7) is a clean app build with 255 tests passing across 26 suites, including Library domain/storage/editor checks, assigned-session lifecycle, completion/undo, and persistence-failure tests. The 6F.6 design task changes documentation only; manual Library validation confirmed creation, archive, and restore. Dedicated UI automation and screenshot regression testing remain future work.
+The current automated implementation verification (6F.8) is a clean app build with 269 tests passing across 28 suites, including Library migration/template checks, domain/storage/editor checks, assigned-session lifecycle, completion/undo, and persistence-failure tests. The 6F.6 design task changes documentation only; manual 6F.7 Library validation confirmed creation, archive, and restore; manual 6F.8 validation confirmed template navigation and exercise creation from a template. Dedicated UI automation and screenshot regression testing remain future work.

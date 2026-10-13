@@ -33,7 +33,7 @@ nonisolated struct LibraryExerciseDraft: Equatable, Codable {
     }
 }
 
-nonisolated enum LibraryValidationIssue: Equatable { case titleRequired, instructionsRequired, purposeRequired }
+nonisolated enum LibraryValidationIssue: Equatable { case titleRequired, instructionsRequired, purposeRequired, templateNameRequired }
 
 nonisolated struct LibraryExerciseOrigin: Equatable, Codable {
     let exerciseID: LibraryExerciseID
@@ -48,6 +48,18 @@ nonisolated struct LibraryExerciseRevision: Equatable, Codable, Identifiable {
     let content: LibraryExerciseDraft
     let createdAt: Date
     let origin: LibraryExerciseOrigin?
+    let templateOrigin: LibraryTemplateOrigin?
+
+    init(id: LibraryRevisionID, exerciseID: LibraryExerciseID, parentRevisionID: LibraryRevisionID?,
+         content: LibraryExerciseDraft, createdAt: Date, origin: LibraryExerciseOrigin?, templateOrigin: LibraryTemplateOrigin? = nil) {
+        self.id = id
+        self.exerciseID = exerciseID
+        self.parentRevisionID = parentRevisionID
+        self.content = content
+        self.createdAt = createdAt
+        self.origin = origin
+        self.templateOrigin = templateOrigin
+    }
 }
 
 nonisolated struct LibraryExercise: Equatable, Identifiable {
@@ -108,7 +120,7 @@ nonisolated enum LibraryMutation: Equatable {
             guard existing.currentRevision.id == expected, revision.parentRevisionID == expected else {
                 throw LibraryRepositoryError.conflict
             }
-            guard revision.origin == existing.currentRevision.origin else { throw LibraryRepositoryError.conflict }
+            guard revision.origin == existing.currentRevision.origin, revision.templateOrigin == existing.currentRevision.templateOrigin else { throw LibraryRepositoryError.conflict }
             return LibraryExercise(id: existing.id, ownerID: existing.ownerID, currentRevision: revision, isArchived: false)
         case .setArchived(_, let expected, let archived):
             guard let existing else { throw LibraryRepositoryError.notFound }

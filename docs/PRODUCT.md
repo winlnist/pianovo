@@ -62,7 +62,15 @@ The paper-like score remains stable while an auto-hiding HUD exposes MIDI status
 
 Library supports creating, viewing, searching, editing, archiving, and restoring written exercises on the device. Each has a title, category, instructions, and learning purpose. Saved edits retain earlier revisions and stable exercise identity. Active and Archived lists remain available after reopening. Failures support retry or a fresh read without reporting an unverified save as successful.
 
-Exercises are guidance, not automatically playable notation or scheduled programme assignments. Library does not launch MIDI Practice, import documents, create templates, or modify the current Today plan. Exercises are private/local; teacher sharing, AI coaching, and hosted synchronisation are not implemented.
+Exercises are guidance, not automatically playable notation or scheduled programme assignments. Library exercises do not launch MIDI Practice, import documents, or modify the current Today plan. Exercises are private/local; teacher sharing, AI coaching, and hosted synchronisation are not implemented.
+
+## Reusable exercise templates (6F.8)
+
+Library's Exercise templates section supports private template creation, editing, searching, archiving, and restoration. A template stores a name and exercise defaults: title, category, instructions, learning purpose, and any existing logical material reference. New Template offers a blank form or optional Pianovo starter patterns for warm-up, sight-reading guidance, and reflection; these do not automatically seed the database.
+
+Create exercise opens an editable pre-filled exercise form. Saving creates a new exercise and pins its template revision/name as origin. Repeated use creates independent exercises. Editing or archiving a template never rewrites exercises already created; editing an exercise preserves its original template reference. These are written defaults, not a variable-expression language, generated notation, MIDI assessment, programme scheduling, or AI.
+
+The Library store explicitly migrates from V1 to V2 while preserving old exercise IDs, owner, revisions, and archive state. Progress/history V1 remains unchanged. Templates share the Library's local owner identity; there are no shared accounts or cloud publishing. Manual validation confirmed template navigation and exercise creation from a template.
 
 ## Implemented but not yet exposed as complete workflows
 
@@ -87,8 +95,7 @@ The remaining foundations must not be presented as working Progress, History, do
 ## Near-term product direction
 
 - Record the content/template/programme design and future hosted-service boundaries (6F.6).
-- Build reusable exercise templates on the verified private local Library foundation (6F.8).
-- Add exercise templates, programme-template editing, and independent learner plans in subsequent milestones.
+- Add programme-template editing and independent learner plans on the verified local exercise/template foundation.
 - Connect editable learner plans to Today, with explicit progression defined separately from completion, session saving, and mastery.
 - Expose saved history and learner notes, then authorised teacher review.
 - Add document access and score-aligned analysis through their own scoped milestones.
@@ -119,7 +126,7 @@ The remaining foundations must not be presented as working Progress, History, do
 
 - No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
 - No persisted numeric statistics; assigned sight-reading saves session context and times only.
-- No functional Progress, History, teacher, or settings workflows. No exercise-template or programme-editor workflows.
+- No functional Progress, History, teacher, or settings workflows. No programme-template/editor workflows.
 - No programme-advancement controls, automatic mastery, generic guided sessions, or durable active-session recovery.
 - No production MusicXML file picker or imported-song practice.
 - No PDF/photo import, optical music recognition, or score correction UI.

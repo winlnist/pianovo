@@ -37,14 +37,14 @@ enum LibrarySchemaV1: VersionedSchema {
 }
 
 enum LibraryMigrationPlan: SchemaMigrationPlan {
-    static var schemas: [any VersionedSchema.Type] { [LibrarySchemaV1.self] }
-    static var stages: [MigrationStage] { [] }
+    static var schemas: [any VersionedSchema.Type] { [LibrarySchemaV1.self, LibrarySchemaV2.self] }
+    static var stages: [MigrationStage] { [.lightweight(fromVersion: LibrarySchemaV1.self, toVersion: LibrarySchemaV2.self)] }
 }
 
 @MainActor
 enum LibraryModelContainerFactory {
     static func configuration(inMemory: Bool = false, storeURL: URL? = nil) -> ModelConfiguration {
-        let schema = Schema(LibrarySchemaV1.models)
+        let schema = Schema(versionedSchema: LibrarySchemaV2.self)
         if inMemory && storeURL == nil {
             return ModelConfiguration("PianovoLibrary", schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
         }
@@ -53,7 +53,7 @@ enum LibraryModelContainerFactory {
     }
 
     static func makeContainer(inMemory: Bool = false, storeURL: URL? = nil) throws -> ModelContainer {
-        let schema = Schema(LibrarySchemaV1.models)
+        let schema = Schema(versionedSchema: LibrarySchemaV2.self)
         let configuration = configuration(inMemory: inMemory, storeURL: storeURL)
         if !configuration.isStoredInMemoryOnly {
             try FileManager.default.createDirectory(at: configuration.url.deletingLastPathComponent(), withIntermediateDirectories: true)

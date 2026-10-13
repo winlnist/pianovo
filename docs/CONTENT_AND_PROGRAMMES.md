@@ -2,15 +2,15 @@
 
 ## Status and direction
 
-Milestone 6F.6 records the agreed product direction and proposed architecture on 12 October 2026. This document records future design and the separate 6F.7 local Library implementation boundary. Template/programme editors, a backend, and sharing services are not implemented.
+Milestone 6F.6 records the agreed product direction and proposed architecture on 12 October 2026. This document records future design and the separate 6F.7 local Library implementation boundary. Programme-template editors, a backend, and sharing services are not implemented.
 
 Pianovo should support teachers organising work for students and learners organising their own work, including with AI coaching. Both paths use reusable exercises, exercise templates, programme templates, and individual learner programmes. A later community can distribute free or paid material and reward creators.
 
-Today and Practice are working through 6F.5. Milestone 6F.7 implements the private local exercise Library described below; creation, archive, and restore were manually validated. History, Progress, teacher accounts, programme editing, AI coaching, cloud synchronisation, payments, and community publishing remain future workflows. The current exercise-source catalogue is code-defined metadata; it is not an editable exercise database. The original SwiftData store holds progress and history. A separate Library store now holds authored exercises and saved revisions; editable templates remain future work.
+Today and Practice are working through 6F.5. Milestone 6F.7 implements the private local exercise Library described below; creation, archive, and restore were manually validated. History, Progress, teacher accounts, programme editing, AI coaching, cloud synchronisation, payments, and community publishing remain future workflows. The current exercise-source catalogue is code-defined metadata; it is not an editable exercise database. The original SwiftData store holds progress and history. A separate Library store now holds authored exercises and saved revisions; exercise templates are completed in 6F.8, with template navigation and exercise creation from a template manually validated; programme templates remain future work.
 
 ## Shared content model
 
-These are conceptual entities. Swift names, repository methods, and storage schemas will be specified in the implementation milestones.
+These are conceptual entities across the roadmap. Exercises and exercise templates now have local implementations; programme-template and learner-programme editor details remain future work.
 
 | Entity | Responsibility | Example |
 | --- | --- | --- |
@@ -138,7 +138,7 @@ Exercise-template creation, programme scheduling, replacing the active seed plan
 
 ### 6F.7 storage decision and implementation boundary
 
-Use a separate named `PianovoLibrary` SwiftData configuration, explicitly stored as `PianovoLibrary.store` in application support, with `LibrarySchemaV1` and `LibraryMigrationPlan`. CloudKit is explicitly disabled; this is local storage, not implemented cloud sharing. The existing progress schema, migration plan, identifiers, and default store are unchanged. The two containers bootstrap independently and remain retained by app dependencies; a failure in one does not disable the other or silently select an in-memory production fallback.
+Use a separate named `PianovoLibrary` SwiftData configuration, explicitly stored as `PianovoLibrary.store` in application support, with `LibrarySchemaV1` and `LibraryMigrationPlan`. CloudKit is explicitly disabled; this is local storage, not implemented cloud sharing. V1 is the original 6F.7 schema; 6F.8 explicitly upgrades this same store to V2 as described below. The existing progress schema, migration plan, identifiers, and default store are unchanged. The two containers bootstrap independently and remain retained by app dependencies; a failure in one does not disable the other or silently select an in-memory production fallback.
 
 Library stores have exercise headers, immutable revision payloads, and one persistent local owner identity created with the first successful exercise write. UUID-based content/owner/revision identities survive edits, archives, and relaunches. The owner is an installation-local content identity, not a fabricated teacher account or authority to claim a remote account.
 
@@ -146,7 +146,7 @@ Library stores have exercise headers, immutable revision payloads, and one persi
 
 The screen offers list/search, Active/Archived views, detail, create/edit forms, archive, and restore. New exercises contain written guidance only. Logical material references are preserved and labelled without claiming access; the initial form does not import documents or attach new reference files. Cancel performs no write; closing after an ambiguous save does not delete a change that reached storage. An explicit or post-editor refresh reads durable state.
 
-The initial workflow has no template/editor scheduling, no generated notation authoring, no learner completion in Library, no AI, accounts, networking, payments, or history mutation. Preview/test repositories are in memory; production content is not seeded with demonstration exercises.
+The initial workflow has no programme-editor scheduling, no generated notation authoring, no learner completion in Library, no AI, accounts, networking, payments, or history mutation. 6F.8 adds exercise templates separately. Preview/test repositories are in memory; production content is not seeded with demonstration exercises.
 
 
 ## Compatibility and implementation gates
@@ -156,3 +156,13 @@ The current `PracticeProgramme`, `PracticeAssignment`, and `ExerciseSource` type
 Current progress records refer to a programme definition/version and assignment IDs; they do not yet model separate learner programme instances or exercise revisions. Before enabling repeated template instantiation, multiple learners, or editable active plans, specify instance/revision references and a tested migration. Do not reuse template assignment IDs as learner assignment IDs. Do not reinterpret legacy progress as belonging to a newly created plan.
 
 The following remain open before their respective implementations: exact template fields/configuration, programme editor limits, next-day/end-of-programme policy, active-plan revision adoption and legacy-progress migration, hosting/authentication provider, sync conflicts, note-sharing permissions, commercial terms, and AI provider/access policy.
+
+## Exercise templates implementation scope (6F.8)
+
+The first template workflow stores a name and validated exercise defaults (title, category, instructions, learning purpose, and any already-linked logical material reference). Using a template opens an exercise draft that can be adapted before saving. It creates a new exercise identity and pins the source template revision/name; later template edits cannot rewrite created exercises. Free text remains guidance, not generated notation. A variable-substitution language, score authoring, programme scheduling, and AI remain deferred.
+
+Add immutable template revisions, archive/restore, and optional labelled starter patterns for warm-up, sight-reading guidance, and reflection. Starter patterns prefill a private template draft only when requested; they are not automatically inserted into the user's database or presented as measured exercises.
+
+Evolve the existing Library store explicitly from `LibrarySchemaV1` to `LibrarySchemaV2` with a lightweight migration adding template headers/revisions while retaining the original three model definitions unchanged. Templates share the store's persistent local owner identity. Test a real V1 disk store upgraded to V2, including old exercise IDs, owner, revisions, archive state, and legacy payloads. Progress/history V1 remains unchanged.
+
+Exercise revision payloads gain optional typed template-origin metadata; decoding legacy payloads without that key must succeed with nil origin. This additive payload extension does not rewrite old revisions or substitute exercise/template IDs. Future incompatible payload changes still require migration design. Template writes use isolated transactions, durable verification, expected revisions, and frozen idempotent retry as exercise writes do.

@@ -2,7 +2,7 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
-Milestones through 6F.5 provide Today programme start/saved-day presentation, assigned generated sight-reading sessions, and explicit self-reported completion/undo. Practice remains the working MIDI reading experience. The next direction is reusable content and editable learner programmes: 6F.6 records the design, followed by the private local exercise Library in 6F.7. Programme advancement, templates, programme editing, and remote services remain unimplemented.
+Milestones through 6F.5 provide Today programme start/saved-day presentation, assigned generated sight-reading sessions, and explicit self-reported completion/undo. Practice remains the working MIDI reading experience. The next direction is reusable content and editable learner programmes: 6F.6 records the design, followed by the private local exercise Library in 6F.7. Programme advancement, programme templates/editing, and remote services remain unimplemented. Exercise templates are completed in 6F.8; template navigation and exercise creation from a template were manually validated.
 
 ## 0. Project Foundation - Completed
 
@@ -225,11 +225,16 @@ Milestones through 6F.5 provide Today programme start/saved-day presentation, as
 - Verify restoration, stable exercise/revision identity, validation, failures, archive behaviour, and unchanged Today/Practice functionality.
 - Defer templates, programme scheduling/activation, accounts, sharing, AI, document import, and payments.
 
-### 6F.8 Exercise Templates - Planned
+### 6F.8 Exercise Templates - Completed
 
 - Create/edit reusable exercise patterns with explicit defaults and validated configuration.
 - Instantiate independent exercises with origin/template revision retained; template edits do not rewrite existing exercises.
 - Add starter patterns without claiming unsupported notation generation or assessment.
+- Provide private template list/detail/create/edit/archive/restore and an editable Create exercise flow.
+- Pin typed template origin per independent exercise; preserve provenance through exercise edits.
+- Migrate Library V1 to V2 with real legacy-store tests; leave the progress/history V1 store unchanged.
+- Keep defaults as editable text, not automatic score generation or a variable-expression language.
+- Defer programme templates/editor, Today scheduling, accounts, backend sharing, payments, and AI.
 
 ### 6F.9 Programme Templates and Editor - Planned
 
