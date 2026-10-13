@@ -12,13 +12,16 @@ enum AppDependencyFactory {
         let progress = progressContainer.map { SwiftDataPracticeHistoryRepository(context: ModelContext($0)) }
         let library = libraryContainer.map { SwiftDataLibraryExerciseRepository(container: $0) }
         let templates = libraryContainer.map { SwiftDataLibraryTemplateRepository(container: $0) }
+        let programmes = libraryContainer.map { SwiftDataLibraryProgrammeRepository(container: $0) }
+        let learnerProgrammes = libraryContainer.map { SwiftDataLearnerProgrammeRepository(container: $0) }
+        let notes = libraryContainer.map { SwiftDataPrivateLearnerNoteRepository(container: $0) }
         return AppDependencies(
             progressRepository: progress, practiceHistoryRepository: progress,
             referenceMaterialResolver: PianovoReferenceMaterialCatalogue.resolver(),
             clock: SystemPracticeClock(), localContextProvider: SystemPracticeLocalContextProvider(),
             persistenceStatus: progress == nil ? .unavailable : .available,
             retainedModelContainer: progressContainer, libraryRepository: library,
-            retainedLibraryContainer: libraryContainer, templateRepository: templates
+            retainedLibraryContainer: libraryContainer, templateRepository: templates, programmeTemplateRepository: programmes, learnerProgrammeRepository: learnerProgrammes, privateNoteRepository: notes
         )
     }
 }

@@ -2,23 +2,31 @@ import SwiftUI
 
 struct LibraryScreen: View {
     @StateObject private var model: LibraryViewModel
+    private let onProgrammeActivated: (() -> Void)?
+    private let learnerProgrammeRepository: (any LearnerProgrammeRepository)?
+    private let localContext: any PracticeLocalContextProviding
+    private let programmeTemplateRepository: (any LibraryProgrammeTemplateRepository)?
     private let templateRepository: (any LibraryExerciseTemplateRepository)?
     @State private var search = ""
     @State private var showsArchived = false
     @State private var editing: LibraryEditingContext?
 
-    init(dependencies: AppDependencies) {
+    init(dependencies: AppDependencies, onProgrammeActivated: (() -> Void)? = nil) {
+        self.onProgrammeActivated = onProgrammeActivated
+        learnerProgrammeRepository = dependencies.learnerProgrammeRepository
+        localContext = dependencies.localContextProvider
+        programmeTemplateRepository = dependencies.programmeTemplateRepository
         templateRepository = dependencies.templateRepository
         _model = StateObject(wrappedValue: LibraryViewModel(repository: dependencies.libraryRepository, clock: dependencies.clock))
     }
 
-    init(viewModel: LibraryViewModel) { templateRepository = nil; _model = StateObject(wrappedValue: viewModel) }
+    init(viewModel: LibraryViewModel) { onProgrammeActivated = nil; learnerProgrammeRepository = nil; localContext = SystemPracticeLocalContextProvider(); programmeTemplateRepository = nil; templateRepository = nil; _model = StateObject(wrappedValue: viewModel) }
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    Text("Create reusable practice guidance. Exercises stay private on this device. Adding them to programmes comes later.")
+                    Text("Create reusable practice guidance. Exercises stay private on this device. Add saved versions to programme templates to organise your practice.")
                         .foregroundStyle(.secondary)
                     Picker("Exercise list", selection: $showsArchived) {
                         Text("Active").tag(false)
@@ -31,6 +39,11 @@ struct LibraryScreen: View {
                             model.acceptSaved($0)
                         }
                     } label: { Label("Exercise templates", systemImage: "doc.on.doc") }
+                }
+                Section {
+                    NavigationLink {
+                        ProgrammeTemplatesScreen(repository: programmeTemplateRepository, exerciseRepository: model.repository, clock: model.clock, learnerRepository: learnerProgrammeRepository, localContext: localContext, onProgrammeActivated: onProgrammeActivated)
+                    } label: { Label("Programme templates", systemImage: "calendar") }
                 }
                 feedback
                 Section {
@@ -128,7 +141,7 @@ private struct LibraryExerciseDetail: View {
                     Label(material?.title ?? "Unknown reference material", systemImage: "doc")
                     Text("Document unavailable in Library. Opening and importing are not supported yet.").foregroundStyle(.secondary)
                 }
-                Text("Written guidance only. This exercise does not launch MIDI Practice and is not assigned to your programme yet.")
+                Text("Written guidance only. Add a saved version to a programme template to plan it; this Library view does not launch MIDI Practice.")
                     .foregroundStyle(.secondary)
                 if model.archiveState == .saving { ProgressView("Saving archive status…") }
                 if case .failed(let failure) = model.archiveState {

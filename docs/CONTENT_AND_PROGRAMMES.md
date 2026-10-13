@@ -2,15 +2,15 @@
 
 ## Status and direction
 
-Milestone 6F.6 records the agreed product direction and proposed architecture on 12 October 2026. This document records future design and the separate 6F.7 local Library implementation boundary. Programme-template editors, a backend, and sharing services are not implemented.
+Milestone 6F.6 records the agreed product direction and proposed architecture on 12 October 2026. This document records future design and the separate 6F.7 local Library implementation boundary. Programme-template editing is implemented locally in 6F.9 with device validation pending; a backend and sharing services are not implemented.
 
 Pianovo should support teachers organising work for students and learners organising their own work, including with AI coaching. Both paths use reusable exercises, exercise templates, programme templates, and individual learner programmes. A later community can distribute free or paid material and reward creators.
 
-Today and Practice are working through 6F.5. Milestone 6F.7 implements the private local exercise Library described below; creation, archive, and restore were manually validated. History, Progress, teacher accounts, programme editing, AI coaching, cloud synchronisation, payments, and community publishing remain future workflows. The current exercise-source catalogue is code-defined metadata; it is not an editable exercise database. The original SwiftData store holds progress and history. A separate Library store now holds authored exercises and saved revisions; exercise templates are completed in 6F.8, with template navigation and exercise creation from a template manually validated; programme templates remain future work.
+Today and Practice are working through 6F.5. Milestone 6F.7 implements the private local exercise Library described below; creation, archive, and restore were manually validated. Progress, teacher accounts, AI coaching, cloud synchronisation, payments, and community publishing remain future workflows. The current exercise-source catalogue is code-defined metadata; it is not an editable exercise database. The original SwiftData store holds progress and history. A separate Library store now holds authored exercises and saved revisions; exercise templates are completed in 6F.8, with template navigation and exercise creation from a template manually validated; programme templates are implemented locally in 6F.9 with device validation pending. Local History/private notes are implemented in 6F.11 with device validation pending.
 
 ## Shared content model
 
-These are conceptual entities across the roadmap. Exercises and exercise templates now have local implementations; programme-template and learner-programme editor details remain future work.
+These are conceptual entities across the roadmap. Exercises and exercise templates now have local implementations; programme templates have a local editor; learner-programme integration is implemented locally in 6F.10 with device validation pending.
 
 | Entity | Responsibility | Example |
 | --- | --- | --- |
@@ -42,11 +42,11 @@ Example: create a C-major warm-up once, place it in Day 1 and Day 2 of a templat
 
 Today is the learner-facing projection of the current saved day in an individual programme. It displays assignments rather than embedding exercise content in SwiftUI. The future editor places exercises into weeks, days, and sections; Library manages reusable content.
 
-The twelve-week seed, six practice days plus one recovery day, and Morning/Evening structure are starter defaults. Future programmes can have different lengths, including six months or one or two years. Programme length and practice-day structure must be validated as content, rather than fixed global constants. Exact authoring limits and date-based scheduling remain future decisions.
+The twelve-week seed, six practice days plus one recovery day, and Morning/Evening structure are starter defaults. Future programmes can have different lengths, including six months or one or two years. Programme length and practice-day structure must be validated as content, rather than fixed global constants. Current local authoring bounds are specified in the 6F.9 section below; date-based scheduling remains a future decision.
 
 Programme days describe ordered work. Calendar date and time of day do not advance the programme. Repeating an exercise, completing an assignment, saving a session, changing the current day, and demonstrating mastery are distinct actions.
 
-Explicit next-day navigation is deferred until the editable programme model and progression policy are defined. Later navigation must preserve incomplete work and history, disclose unfinished assignments, handle recovery and week boundaries, and define the final-day state. It must not infer mastery or select the next Beyer exercise merely from a day/week change. The existing later-week current-Beyer source is unresolved metadata, not an implemented adaptive exercise selector.
+6F.10 implements explicit day navigation for independent learner plans, preserving incomplete work/history, disclosing unfinished assignments, handling recovery/week boundaries, and presenting a final-day state. The original seeded programme remains unchanged. It must not infer mastery or select the next Beyer exercise merely from a day/week change. The existing later-week current-Beyer source is unresolved metadata, not an implemented adaptive exercise selector.
 
 ## Identity, versions, copies, and updates
 
@@ -151,9 +151,9 @@ The initial workflow has no programme-editor scheduling, no generated notation a
 
 ## Compatibility and implementation gates
 
-The current `PracticeProgramme`, `PracticeAssignment`, and `ExerciseSource` types remain unchanged in this design task. An `ExerciseSource` is source metadata, not a substitute for an authored exercise/revision. The future content/programme adapter must supply resolved, validated definitions to Today while preserving the framework boundaries.
+The current `PracticeProgramme`, `PracticeAssignment`, and `ExerciseSource` types remain unchanged in this design task. An `ExerciseSource` is source metadata, not a substitute for an authored exercise/revision. The 6F.10 learner-plan projection supplies its own resolved content to Today while preserving these legacy types and framework boundaries.
 
-Current progress records refer to a programme definition/version and assignment IDs; they do not yet model separate learner programme instances or exercise revisions. Before enabling repeated template instantiation, multiple learners, or editable active plans, specify instance/revision references and a tested migration. Do not reuse template assignment IDs as learner assignment IDs. Do not reinterpret legacy progress as belonging to a newly created plan.
+Current progress records refer to a programme definition/version and assignment IDs; they do not yet model separate learner programme instances or exercise revisions. 6F.10 introduces independent instance/revision references and a tested coexistence path, leaving legacy progress in its original store. Before any later cross-account or seed-conversion work, specify and test the additional compatibility mapping. Do not reuse template assignment IDs as learner assignment IDs. Do not reinterpret legacy progress as belonging to a newly created plan.
 
 The following remain open before their respective implementations: exact template fields/configuration, programme editor limits, next-day/end-of-programme policy, active-plan revision adoption and legacy-progress migration, hosting/authentication provider, sync conflicts, note-sharing permissions, commercial terms, and AI provider/access policy.
 
@@ -166,3 +166,15 @@ Add immutable template revisions, archive/restore, and optional labelled starter
 Evolve the existing Library store explicitly from `LibrarySchemaV1` to `LibrarySchemaV2` with a lightweight migration adding template headers/revisions while retaining the original three model definitions unchanged. Templates share the store's persistent local owner identity. Test a real V1 disk store upgraded to V2, including old exercise IDs, owner, revisions, archive state, and legacy payloads. Progress/history V1 remains unchanged.
 
 Exercise revision payloads gain optional typed template-origin metadata; decoding legacy payloads without that key must succeed with nil origin. This additive payload extension does not rewrite old revisions or substitute exercise/template IDs. Future incompatible payload changes still require migration design. Template writes use isolated transactions, durable verification, expected revisions, and frozen idempotent retry as exercise writes do.
+
+## Programme templates implementation scope (6F.9)
+
+Library → Programme templates provides private create/detail/edit/copy/search/archive/restore. A template contains ordered weeks and days, a recovery/reflection flag, and named sections. Each exercise placement has a unique UUID, a pinned authored exercise/revision reference, a contextual goal, and planned minutes. Array order defines presentation order; the editor supports explicit reordering and removal. Adding an exercise selects its current saved revision; old references remain pinned when the exercise is edited or archived.
+
+Blank templates begin with one empty day. Optional one-week and twelve-week starter structures use six Morning/Evening days plus an empty recovery day; they do not seed exercises or convert the legacy Today programme. Empty sections/days can be saved to build a template gradually. Validation requires a name, 1–104 weeks, 1–7 days per week, at most 8 named sections per day, at most 100 placements per section, unique structural/placement identities, a nonempty goal, 1–1440 planned minutes, and resolvable exercise revisions. These are explicit local authoring bounds, not date-based scheduling or a global twelve-week programme policy.
+
+Saving creates immutable revisions with expected-revision conflict checks. Copying allocates independent template/revision and week/day/section/placement identities, keeps exercise references pinned, and retains the source programme-template revision/name as origin. Subsequent edits preserve that origin. Archived exercises already referenced remain resolvable; new placements use active exercises. No hard deletion is offered.
+
+`LibrarySchemaV3` adds programme headers/revision payloads to the same Library store with an explicit V2-to-V3 lightweight stage. V1 and V2 model definitions are unchanged; V1-to-current and exact V2-to-current disk migration tests preserve local owner, exercise/template identities, revisions and archive states. The programme repository verifies exercise references inside its local transaction and confirms durable writes using a fresh reader, with rollback and idempotent retries after failures. Progress/history schemas and stores are unchanged.
+
+The programme-template editor alone produces reusable plans. 6F.10 adds explicit independent learner-plan creation and Today selection, as described in [Learner Programmes](LEARNER_PROGRAMMES.md). It does not convert the seeded Beyer programme, make authored text MIDI-playable, or introduce sharing, accounts, AI, payments or calendar scheduling.

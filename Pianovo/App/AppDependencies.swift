@@ -3,6 +3,9 @@ import SwiftData
 
 @MainActor
 struct AppDependencies {
+    let privateNoteRepository: (any PrivateLearnerNoteRepository)?
+    let learnerProgrammeRepository: (any LearnerProgrammeRepository)?
+    let programmeTemplateRepository: (any LibraryProgrammeTemplateRepository)?
     let templateRepository: (any LibraryExerciseTemplateRepository)?
     let libraryRepository: (any LibraryExerciseRepository)?
     let libraryPersistenceStatus: AppPersistenceStatus
@@ -25,8 +28,14 @@ struct AppDependencies {
         retainedModelContainer: ModelContainer? = nil,
         libraryRepository: (any LibraryExerciseRepository)? = nil,
         retainedLibraryContainer: ModelContainer? = nil,
-        templateRepository: (any LibraryExerciseTemplateRepository)? = nil
+        templateRepository: (any LibraryExerciseTemplateRepository)? = nil,
+        programmeTemplateRepository: (any LibraryProgrammeTemplateRepository)? = nil,
+        learnerProgrammeRepository: (any LearnerProgrammeRepository)? = nil,
+        privateNoteRepository: (any PrivateLearnerNoteRepository)? = nil
     ) {
+        self.privateNoteRepository = privateNoteRepository
+        self.learnerProgrammeRepository = learnerProgrammeRepository
+        self.programmeTemplateRepository = programmeTemplateRepository
         self.templateRepository = templateRepository
         self.libraryRepository = libraryRepository
         self.libraryPersistenceStatus = libraryRepository == nil ? .unavailable : .available
@@ -56,6 +65,8 @@ struct AppDependencies {
         referenceMaterialResolver: any ReferenceMaterialResolving = PianovoReferenceMaterialCatalogue.resolver()
     ) -> AppDependencies {
         let ownerID = LibraryOwnerID(rawValue: UUID())
+        let exercises = InMemoryLibraryExerciseRepository(ownerID: ownerID)
+        let programmes = InMemoryLibraryProgrammeTemplateRepository(ownerID: ownerID, exerciseRepository: exercises)
         return AppDependencies(
             progressRepository: repository,
             practiceHistoryRepository: repository,
@@ -63,8 +74,11 @@ struct AppDependencies {
             clock: clock,
             localContextProvider: localContextProvider,
             persistenceStatus: .available,
-            libraryRepository: InMemoryLibraryExerciseRepository(ownerID: ownerID),
-            templateRepository: InMemoryLibraryExerciseTemplateRepository(ownerID: ownerID)
+            libraryRepository: exercises,
+            templateRepository: InMemoryLibraryExerciseTemplateRepository(ownerID: ownerID),
+            programmeTemplateRepository: programmes,
+            learnerProgrammeRepository: InMemoryLearnerProgrammeRepository(ownerID: ownerID, exercises: exercises, templates: programmes),
+            privateNoteRepository: InMemoryPrivateLearnerNoteRepository()
         )
     }
 

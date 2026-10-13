@@ -42,7 +42,7 @@ Templates produce independent editable content/plans while retaining origin and 
 
 The first implementation is a durable local exercise Library. Its identity, version, ownership, and repository boundaries must support a later hosted database/API, offline synchronisation, accounts, and authorised teacher/student sharing. AI-assisted content uses the same model and starts as a reviewable draft. Marketplace and entitlement handling build on those foundations later.
 
-See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md) for the design baseline, compatibility constraints, and phased scope. None of these planned editors or services is a shipped workflow.
+See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md) for the design baseline, compatibility constraints, and phased scope. Exercise and programme-template authoring are local workflows; independent learner plans now have local Today integration; hosted services remain planned.
 
 ## Current user-facing experience
 
@@ -56,7 +56,7 @@ The app launches into Today, where learners explicitly start the programme at We
 - Receive a new exercise after completing the current one.
 - Review session-only correct, wrong, attempt, accuracy, streak, and completion values.
 
-The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, History, Ask My Teacher, and Settings currently show “coming later” states.
+The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, Ask My Teacher, and Settings currently show “coming later” states.
 
 ## Private local exercise Library (6F.7)
 
@@ -71,6 +71,30 @@ Library's Exercise templates section supports private template creation, editing
 Create exercise opens an editable pre-filled exercise form. Saving creates a new exercise and pins its template revision/name as origin. Repeated use creates independent exercises. Editing or archiving a template never rewrites exercises already created; editing an exercise preserves its original template reference. These are written defaults, not a variable-expression language, generated notation, MIDI assessment, programme scheduling, or AI.
 
 The Library store explicitly migrates from V1 to V2 while preserving old exercise IDs, owner, revisions, and archive state. Progress/history V1 remains unchanged. Templates share the Library's local owner identity; there are no shared accounts or cloud publishing. Manual validation confirmed template navigation and exercise creation from a template.
+
+## Local programme templates (6F.9)
+
+Library's Programme templates section creates reusable arrangements of saved exercises into ordered weeks, days, and named sections. Each placement pins an exercise version and has its own goal and planned minutes. The editor supports recovery/reflection days, adding/reordering/removing structure and placements, and optional blank or Morning/Evening starter structures. Length can be configured up to 104 weeks; the twelve-week seed is not a global restriction. Empty days/sections are allowed while building a template.
+
+Saving/editing retains immutable revisions. Create editable copy produces an independent template with source origin retained; later edits do not change the source or its exercise content. Templates can be searched, archived, restored and reopened from local storage. Existing exercise references remain pinned after exercise edits/archives. Initial 6F.9 use has been manually confirmed; broader device checks remain pending.
+
+Templates remain reusable content. Explicit Use as my programme creates/selects an independent learner plan through 6F.10 below; it does not rewrite the template or the original Today position/history. No teacher sharing, mastery assessment or AI is added.
+
+## Individual learner programmes and Today (6F.10)
+
+Use as my programme in Library creates a private independent plan from a selected template revision and opens its first saved day in Today. The plan retains pinned exercise versions and source origin. Today displays the authored section names, instructions, goals and planned minutes, with self-reported completion and undo. Named sections are not interpreted as clock-based scheduling.
+
+Today → Programmes switches between learner plans and the preserved original twelve-week programme, keeping each position and all original history. Next Day allows continuing after an unfinished-work warning and preserves that work's status; Previous Day revisits earlier saved work. Recovery and week boundaries follow the saved order, and Finish programme presents an explicit end state without wrapping or inferring mastery. Only learner actions move position.
+
+Edit my programme adapts the personal copy, retaining immutable revisions and original records. Unchanged assignments retain status; changed work has a new occurrence identity and starts uncompleted. The current saved day cannot be removed until the learner moves to another day. Changed plan content clears its prior end marker without resetting position or records. Template/exercise edits never rewrite existing learner work.
+
+New authored assignments remain written guidance and do not launch MIDI Practice. The original programme's assigned sight-reading and standalone Practice remain operational. Legacy progress stays in its original store and is not copied/re-keyed into a new plan; the Library V3-to-V4 migration adds private learner records separately. Device validation of 6F.10 is pending. Automatic seed conversion, mastery, document access, rhythm/tempo analysis, cloud sync and teacher/AI features remain future work.
+
+## Local History and private notes (6F.11)
+
+History shows actual saved sessions, original reflections/attempts/mastery decisions when present, independent learner completion/undo, and private notes. It shows recorded duration and historical local-day/time-zone context, without inventing accuracy, tempo or numeric statistics. Standalone Practice remains session-only. Missing or failed history sources are labelled and can be refreshed.
+
+Add private note targets a saved session or learner assignment/day; Note on current day targets the selected started programme day. Notes are explicit, append-only learner reflections stored on this device. Saving does not change position, completion or mastery. Teacher feedback, private teacher lesson notes and shared lesson notes remain planned with separate audiences/permissions. History does not add Progress, remote collaboration or combined deletion/settings features. Manual validation confirmed using History and adding private notes. Restoration after reopening and broader workflow checks remain unconfirmed.
 
 ## Implemented but not yet exposed as complete workflows
 
@@ -90,13 +114,13 @@ Milestone 6F.5 adds explicit learner-reported completion and undo for every assi
 
 Completion is independent of End & Save. It writes only the existing assignment completion record, never session statistics, a mastery decision, a reflection, or a new programme position. Failures retain the displayed status until the change is verified; retry keeps the original intent and timestamp. Refresh Today reads durable status and abandons any pending retry, without undoing an earlier successful save.
 
-The remaining foundations must not be presented as working Progress, History, document-library, or imported-song experiences.
+The remaining foundations must not be presented as working Progress, document-library, or imported-song experiences.
 
 ## Near-term product direction
 
 - Record the content/template/programme design and future hosted-service boundaries (6F.6).
-- Add programme-template editing and independent learner plans on the verified local exercise/template foundation.
-- Connect editable learner plans to Today, with explicit progression defined separately from completion, session saving, and mastery.
+- Validate programme-template and learner-plan workflows on device.
+- Keep editable learner-plan progression explicit and separate from completion, session saving, and mastery.
 - Expose saved history and learner notes, then authorised teacher review.
 - Add document access and score-aligned analysis through their own scoped milestones.
 
@@ -126,8 +150,8 @@ The remaining foundations must not be presented as working Progress, History, do
 
 - No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
 - No persisted numeric statistics; assigned sight-reading saves session context and times only.
-- No functional Progress, History, teacher, or settings workflows. No programme-template/editor workflows.
-- No programme-advancement controls, automatic mastery, generic guided sessions, or durable active-session recovery.
+- No functional Progress, teacher, or settings workflows.
+- No advancement/editing of the original seeded programme; no automatic mastery, generic guided sessions, or durable active-session recovery.
 - No production MusicXML file picker or imported-song practice.
 - No PDF/photo import, optical music recognition, or score correction UI.
 - No MIDI recording timeline, tempo assessment, audio analysis, or playback.

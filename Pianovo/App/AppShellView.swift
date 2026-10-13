@@ -39,13 +39,15 @@ struct AppShellView: View {
         case .practice:
             PracticeScreen()
         case .today:
-            TodayScreen(dependencies: dependencies) { context in
+            TodayProgrammeScreen(dependencies: dependencies) { context in
                 guard assignmentPractice == nil else { return }
                 assignmentPractice = context
             }
         case .library:
-            LibraryScreen(dependencies: dependencies)
-        case .progress, .history, .askMyTeacher, .settings:
+            LibraryScreen(dependencies: dependencies) { selectedDestination = .today }
+        case .history:
+            HistoryScreen(dependencies: dependencies)
+        case .progress, .askMyTeacher, .settings:
             ComingSoonView(destination: selectedDestination ?? .today)
         }
     }

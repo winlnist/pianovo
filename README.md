@@ -4,9 +4,9 @@
 
 Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Today provides a saved programme plan, while Practice turns a physical MIDI piano into an interactive sight-reading exercise: the app generates notation, listens for played notes through CoreMIDI, and advances only when the learner plays the expected pitch.
 
-The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Progress history, document access, and teacher-guided planning remain future workflows supported by implemented foundations.
+The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Local History is implemented and ready for device validation; document access and teacher-guided planning remain future workflows.
 
-> **Development status:** active portfolio project. Today, Practice, and the private local exercise Library are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Milestone 6F.5 adds explicit learner-reported assignment completion and undo. Programme advancement, document access, and teacher workflows remain planned.
+> **Development status:** active portfolio project. Today, Practice, and the private local exercise Library are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Milestone 6F.5 adds explicit learner-reported assignment completion and undo. Personal learner programmes and explicit day navigation are implemented locally and ready for device validation. Document access and teacher workflows remain planned.
 
 ## App preview
 
@@ -18,9 +18,9 @@ Both images are direct captures of the running app on an iPad Pro 11-inch (M5) s
 
 ## What works today
 
-### Today programme experience
+### Original twelve-week programme in Today
 
-- Opens as the initial destination, with an explicit **Start Programme** action that initializes the twelve-week programme at **Week 1, Day 1**.
+- On initial use, Today offers an explicit **Start Programme** action that initializes the original twelve-week programme at **Week 1, Day 1**.
 - Persists and restores the current programme position across app launches; repeated starts preserve existing progress, and calendar dates do not advance the saved day.
 - Shows **Morning** and **Evening** practice sections, plus a distinct recovery/reflection-day presentation for saved recovery days.
 - Presents assignment goals, planned duration, and completion/mastery status when records exist.
@@ -45,7 +45,7 @@ Completion is separate from saving a session and does not advance programme posi
 - **End & Save** stores the assignment context, start/end times and local-day context, and a stopped outcome, then shows an immediate summary of the actual session statistics.
 - Retry a failed save using the same session identity. Backgrounding freezes the session; returning offers save or discard without resuming or counting background time.
 
-Only generated sight-reading assignments are actionable; other assignments remain informational. Saving does not mark an assignment complete, evaluate mastery, or advance the programme. Numeric statistics remain temporary, and Today cannot open reference documents.
+Only generated sight-reading assignments can launch in-app MIDI Practice; other material has no in-app practice action. Saving does not mark an assignment complete, evaluate mastery, or advance the programme. Numeric statistics remain temporary, and Today cannot open reference documents.
 
 ### MIDI sight-reading Practice
 
@@ -59,7 +59,7 @@ Only generated sight-reading assignments are actionable; other assignments remai
 - Session-only counts for correct answers, wrong attempts, accuracy, streak, and completed prompts.
 - Adaptive iPhone/iPad layout and an auto-hiding practice HUD that does not reflow the score.
 
-Practice remains directly available from navigation. Progress, History, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
+Practice remains directly available from navigation. Progress, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
 
 ### Private local exercise Library
 
@@ -68,7 +68,7 @@ Practice remains directly available from navigation. Progress, History, Ask My T
 - Retain stable exercise identity and earlier saved revisions across edits and app launches.
 - Retry failed writes or refresh to check durable saved status.
 
-Library exercises are private written guidance on the device. They do not yet launch MIDI Practice or appear in Today. Programme editing, document import, teacher sharing, cloud sync, and AI coaching remain planned. Exercise creation, archiving, and restoration have been manually validated.
+Library exercises are private written guidance on the device. Saved versions can appear in Today through independent learner programmes; they do not launch MIDI Practice. Document import, teacher sharing, cloud sync, and AI coaching remain planned. Exercise creation, archiving, and restoration have been manually validated.
 
 ### Reusable exercise templates
 
@@ -77,7 +77,32 @@ Library exercises are private written guidance on the device. They do not yet la
 - **Create exercise** opens a pre-filled form you can adapt before saving an independent exercise.
 - Preserve the source template version as origin; later template changes leave existing exercises untouched.
 
-Templates contain written defaults, not automatically generated notation or programme assignments. Programme templates, scheduling, sharing, and AI remain future work. The Library V1-to-V2 migration preserves existing exercises and revisions. Manual validation confirmed template navigation and exercise creation from a template.
+Templates contain written defaults, not automatically generated notation or programme assignments. Sharing and AI remain future work; learner-programme integration is added below. The Library V1-to-V2 migration preserves existing exercises and revisions. Manual validation confirmed template navigation and exercise creation from a template.
+
+### Programme templates — ready for device validation
+
+- Arrange saved exercise versions into ordered weeks, days, and named sections, with a goal and planned minutes for each placement.
+- Add recovery/reflection days and adapt blank or Morning/Evening starter structures; configure longer programmes up to 104 weeks.
+- Edit, reorder, copy, archive, and restore private templates while preserving earlier revisions and source origin.
+
+This local editor creates reusable templates. Use as my programme creates an independent learner plan through 6F.10 below. Initial 6F.9 use has been manually confirmed; broader programme-editor checks remain pending.
+
+### Your own programme in Today — ready for device validation
+
+- Create an independent learner plan from a programme template, retaining the selected exercise versions and source origin.
+- View its saved day in Today, report completion/undo, and explicitly move through days and weeks. Unfinished-work warnings allow continuing while keeping the recorded status.
+- Edit the personal plan without changing its template; replacement work starts uncompleted and earlier records are preserved.
+- Switch back to the original twelve-week programme with its position and history intact. Finishing a learner plan does not wrap or infer mastery.
+
+Authored exercises remain written guidance. The original assigned sight-reading flow and standalone MIDI Practice remain available; authored category labels do not make exercises MIDI-playable. Interactive 6F.10 validation is pending.
+
+### Local History and private notes — ready for device validation
+
+- Browse actual saved sessions, learner completion/undo, and private reflections with recorded dates and local-day context.
+- Add a private note to a saved session, learner assignment/day, or the currently selected started programme day.
+- Keep failed-save retries tied to the same note, context and timestamp; notes do not change progress or mastery.
+
+Notes are append-only and private on this device. Accuracy, tempo and numeric statistics are not invented. Teacher/shared notes, Progress and remote collaboration remain planned. Manual validation confirmed using History and adding private notes. Restoration after reopening and broader workflow checks remain unconfirmed.
 
 ## Implemented foundations
 
@@ -86,7 +111,7 @@ These implemented and tested components support the app and future work; their p
 - A framework-independent Music Domain and Full Score Domain with stable event identifiers.
 - A limited MusicXML `score-partwise` importer.
 - Development-only full-score rendering of MusicXML fixtures with Verovio.
-- A validated twelve-week programme model used by Today; programme progression controls remain deferred.
+- A validated twelve-week programme model used by the original Today route; advancement/editing of this original seed remains deferred.
 - SwiftData repositories for programme progress, sessions, attempts, reflections, and mastery decisions.
 - A logical reference-material catalogue that keeps licensing and file availability explicit.
 - Production dependency composition and Today presentation state, now connected to the working Today screen.
@@ -98,7 +123,7 @@ This distinction is deliberate: having a persistence model or view model in the 
 - **Native interaction:** SwiftUI and CoreMIDI provide a responsive practice loop with physical-instrument input.
 - **Separated domains:** music, practice behaviour, curriculum, progress, rendering, and infrastructure have explicit boundaries.
 - **Renderer strategy:** lightweight native notation supports interactive drills; Verovio is isolated behind a separate adapter for future full scores.
-- **Stable identity:** score events, programme elements, assignments, and persisted records use deterministic identifiers.
+- **Stable identity:** score events, programme elements, assignments, and persisted records use stable identifiers.
 - **Local-first persistence:** SwiftData is confined to an adapter layer behind asynchronous repository protocols.
 - **Deterministic tests:** injected clocks, time zones, calendars, random sources, and in-memory stores avoid dependence on device state.
 - **Responsible source handling:** reference PDFs and audio are not committed or bundled while usage rights remain unverified.
@@ -174,14 +199,20 @@ Milestone 6F.7 automated verification passed **255 tests across 26 suites** and 
 
 Milestone 6F.8 automated verification passed **269 tests across 28 suites** and a clean simulator build, including a real V1-to-V2 Library migration and independent exercise creation from template revisions. Manual validation confirmed template navigation and exercise creation from a template.
 
+Milestone 6F.9 automated verification passed **282 tests across 30 suites** and a clean simulator build, including exact legacy Library migrations, pinned exercise versions, independent programme-template copies, and failed-save retries. Initial use has been manually confirmed; broader programme-editor checks remain pending.
+
+Milestone 6F.10 automated verification passed **298 tests across 32 suites** and a clean simulator build, including independent learner-plan identities, real legacy-store preservation, explicit selection/navigation, immutable content, completion/undo, and idempotent failed-save retries. Interactive learner-programme validation is pending.
+
+Milestone 6F.11 automated verification passed **305 tests across 33 suites** and a clean simulator build, including real History projection, private-note validation/retry/durable restoration, and a V4-to-V5 migration preserving existing learner plans. Manual validation confirmed using History and adding private notes. Restoration after reopening and broader workflow checks remain unconfirmed.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
 - Generated exercises use natural pitches and quarter-note notation rather than full musical context.
 - Assigned sight-reading saves session context and times, but numeric statistics remain temporary. Standalone Practice does not save sessions.
-- Today has no automatic mastery evaluation or controls to advance programme position.
+- Today has no automatic mastery evaluation. Only independent learner plans have explicit day navigation; the original seeded programme has no advancement controls.
 - Unsaved assigned sessions cannot be recovered after the app closes; force-quit recovery is deferred.
-- Progress, History, Ask My Teacher, and Settings remain placeholder screens.
+- Progress, Ask My Teacher, and Settings remain placeholder screens.
 - Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
 - MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
 - PDF/photo import, optical music recognition, audio or raw MIDI performance recording, tempo/rhythm analysis, teacher accounts and teacher-created plans, Ask My Teacher chat, coach API, cloud sync, and collaboration remain planned workflows.
@@ -190,7 +221,7 @@ Milestone 6F.8 automated verification passed **269 tests across 28 suites** and 
 
 ## Next milestones
 
-1. Add programme templates and editable learner plans; define progression separately from completion and mastery.
+1. Validate programme-template, learner-plan, History and private-note workflows on device.
 2. Introduce document access and licensed/user-imported reference-material presentation.
 3. Add score-aligned MIDI timing and correctness analysis.
 4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.

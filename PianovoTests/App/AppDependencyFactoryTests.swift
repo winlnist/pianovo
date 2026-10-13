@@ -39,6 +39,8 @@ struct AppDependencyFactoryTests {
         #expect(dependencies.progressRepository != nil)
         #expect(dependencies.libraryPersistenceStatus == .unavailable)
         #expect(dependencies.libraryRepository == nil)
+        #expect(dependencies.programmeTemplateRepository == nil)
+        #expect(dependencies.learnerProgrammeRepository == nil)
         #expect(!dependencies.retainsLibraryModelContainer)
         _ = LibraryScreen(dependencies: dependencies)
     }
@@ -51,6 +53,8 @@ struct AppDependencyFactoryTests {
         #expect(dependencies.persistenceStatus == .unavailable)
         #expect(dependencies.libraryPersistenceStatus == .available)
         #expect(dependencies.libraryRepository != nil)
+        #expect(dependencies.programmeTemplateRepository != nil)
+        #expect(dependencies.learnerProgrammeRepository != nil)
         #expect(dependencies.retainsLibraryModelContainer)
         #expect(!dependencies.retainsProductionModelContainer)
     }

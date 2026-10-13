@@ -98,3 +98,23 @@ Mark complete uses one injected timestamp for `updatedAt` and `completedAt`; Und
 Completion upserts use an isolated context with autosave disabled, rollback on failure, and a separate durable reader. `loadProgress` reads completion models from a fresh context; its active-progress read retains its existing semantics. Pending changes in the original context are not saved or rolled back by completion writes. The V1 schema and repository protocols stay unchanged.
 
 The application serializes actions, checks the saved position before writing, and verifies durable completion afterward. Retry preserves the original intent and timestamp; a matching desired status already in storage needs no new write. Refresh reads stored state and clears the pending retry without undoing a save that reached storage. Independent concurrent progress writers and component-level progress remain future work.
+
+
+## Local History and private learner notes (6F.11)
+
+History now presents real saved original sessions/reflections/attempts/mastery decisions, independent learner-plan completion/undo records, and private learner notes in deterministic reverse timestamp order. Session duration comes only from saved start/end times. Numeric accuracy, tempo, raw MIDI and performance statistics are not fabricated. Canonical original assignment completion is not expanded into a made-up historical event stream. Stored local-day/time-zone context is displayed without rebucketing into the current device zone.
+
+Notes can be explicitly added to a saved session, a recorded learner assignment/day, or the currently selected started programme day. Context is frozen when opening the form; saves freeze UUID, trimmed text, timestamp/local-day and audience before suspension. Notes are append-only in this step: no editing, deletion or automatic reflection generation is offered. Retry reconciles only an exactly matching durable note. Cancel does not write, and closing after an ambiguous save does not delete a note already saved.
+
+`PrivateLearnerNoteRepository` is a separate MainActor async/throwing boundary. `LibrarySchemaV5` adds one private-note model with an explicit V4-to-V5 lightweight migration, retaining all previous Library model definitions and the unchanged original progress V1 store. Its adapter writes through a fresh context with autosave disabled, rolls back failures and verifies using a fresh reader. Notes retain their captured context even if their original session is later deleted through an existing lower-level API; they do not recreate that session. Existing legacy reset/delete-all APIs remain scoped to legacy records and do not claim to clear newer Library learner data. A future combined deletion/settings workflow must explicitly cover both stores and private notes.
+
+History loads legacy records, learner records and notes independently. A failed/unavailable source is labelled; previously read rows are retained and an incomplete load is never presented as a complete empty history. Note creation never records a session, attempt, completion, mastery decision, or position change. The production note adapter has no in-memory fallback.
+
+| Note audience | Current boundary |
+| --- | --- |
+| Private learner note/reflection | Implemented locally; not shared |
+| Student-visible teacher feedback | Planned; requires author identity and authorised relationship |
+| Private teacher lesson note | Planned; teacher-only audience and access rules required |
+| Shared lesson note | Planned; explicit recipients and permissions required |
+
+The only new stored audience is `privateLearner`. Teacher notes, collaboration, account roles, community publishing and sync remain unimplemented. Future content publication must exclude private learner history/notes. Manual validation confirmed using History and adding private notes. Restoration after reopening and broader workflow checks remain unconfirmed.

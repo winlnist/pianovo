@@ -2,7 +2,7 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
-Milestones through 6F.5 provide Today programme start/saved-day presentation, assigned generated sight-reading sessions, and explicit self-reported completion/undo. Practice remains the working MIDI reading experience. The next direction is reusable content and editable learner programmes: 6F.6 records the design, followed by the private local exercise Library in 6F.7. Programme advancement, programme templates/editing, and remote services remain unimplemented. Exercise templates are completed in 6F.8; template navigation and exercise creation from a template were manually validated.
+Milestones through 6F.5 provide Today programme start/saved-day presentation, assigned generated sight-reading sessions, and explicit self-reported completion/undo. Practice remains the working MIDI reading experience. The next direction is reusable content and editable learner programmes: 6F.6 records the design, followed by the private local exercise Library in 6F.7. Learner-programme integration and explicit day advancement are implemented locally in 6F.10 with device validation pending; remote services remain unimplemented. Programme-template editing is implemented locally in 6F.9 with device validation pending. Exercise templates are completed in 6F.8; template navigation and exercise creation from a template were manually validated.
 
 ## 0. Project Foundation - Completed
 
@@ -236,25 +236,38 @@ Milestones through 6F.5 provide Today programme start/saved-day presentation, as
 - Keep defaults as editable text, not automatic score generation or a variable-expression language.
 - Defer programme templates/editor, Today scheduling, accounts, backend sharing, payments, and AI.
 
-### 6F.9 Programme Templates and Editor - Planned
+### 6F.9 Programme Templates and Editor - Implemented, Device Validation Pending
 
 - Arrange pinned exercise revisions into weeks, ordered days, and practice sections with contextual goals/durations.
 - Support configurable programme length and starter policies without a global twelve-week restriction.
 - Save/copy template revisions and validate references; do not rewrite active learner plans.
+- Provide private list/detail/create/edit/copy/search/archive/restore, pinned exercise versions, and explicit ordering/removal.
+- Support blank and optional one-/twelve-week starter structures without seeding or converting Today.
+- Use explicit local authoring bounds (1–104 weeks, 1–7 ordered days per week) and a V2-to-V3 Library migration preserving existing content.
+- Defer learner-plan instantiation, legacy progress migration, Today integration, day advancement, accounts, sharing, and AI to later milestones.
 
-### 6F.10 Individual Learner Programmes and Today Integration - Planned
+### 6F.10 Individual Learner Programmes and Today Integration - Implemented, Device Validation Pending
+
+Implementation design and legacy compatibility audit: [Individual Learner Programmes](LEARNER_PROGRAMMES.md). Confirmed policies allow advancement after an unfinished-work warning and switching back to the preserved original programme.
 
 - Instantiate independent plans with unique assignment-occurrence IDs and preserved template/creator origin.
 - Specify and test migration from legacy definition-based progress before editable/multiple programme instances.
 - Adapt personal plans explicitly and preserve historical revisions; project their current assignments into Today.
 - Define next-day, unfinished-work, recovery/week-transition, and final-day behaviour separately from mastery and Beyer sequencing.
-- Adopt the existing seed as starter content only through an explicit compatibility path.
+- Adopt the existing seed as starter content only through an explicit compatibility path. The current step preserves it as a selectable original programme, without converting or re-keying its records.
+- Use a V3-to-V4 Library migration for independent learner plans, immutable exercise snapshots, private completion records, selection, and idempotent operation receipts.
+- Provide explicit create/select, Today switching, self-reported completion/undo, personal editing, Next/Previous Day, recovery/week transitions and final-day presentation.
+- Keep new authored assignments as written guidance; preserve original assigned MIDI and standalone Practice.
 
-### 6F.11 Local History and Learner Notes - Planned
+### 6F.11 Local History and Learner Notes - Implemented, Partial Manual Validation Recorded
 
 - Expose real saved session context/times and assignment status without inventing persisted numeric statistics.
 - Add private learner reflections/notes with explicit context; keep progress assessment distinct from self-report.
 - Define audiences for teacher feedback, private lesson notes, and shared lesson notes before later cross-account sharing.
+- Replace only History with real saved session/learner-report/private-note rows, explicit source failures and recorded local-day context.
+- Manual validation confirms using History and adding private notes; reopening/restoration and broader checks remain unconfirmed.
+- Add append-only private notes for saved sessions and programme days via a V4-to-V5 Library migration.
+- Preserve original progress/history schemas, Practice/MIDI and numeric-statistic boundaries; no teacher, account, cloud or Progress workflow is added.
 
 ### 6F.12 Hosted Accounts, Synchronisation, and Teacher Collaboration - Planned
 
