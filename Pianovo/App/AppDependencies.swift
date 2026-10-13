@@ -3,6 +3,9 @@ import SwiftData
 
 @MainActor
 struct AppDependencies {
+    let libraryRepository: (any LibraryExerciseRepository)?
+    let libraryPersistenceStatus: AppPersistenceStatus
+    private let retainedLibraryContainer: ModelContainer?
     let progressRepository: (any ProgrammeProgressRepository)?
     let practiceHistoryRepository: (any PracticeHistoryRepository)?
     let referenceMaterialResolver: any ReferenceMaterialResolving
@@ -18,8 +21,13 @@ struct AppDependencies {
         clock: any PracticeClock,
         localContextProvider: any PracticeLocalContextProviding,
         persistenceStatus: AppPersistenceStatus,
-        retainedModelContainer: ModelContainer? = nil
+        retainedModelContainer: ModelContainer? = nil,
+        libraryRepository: (any LibraryExerciseRepository)? = nil,
+        retainedLibraryContainer: ModelContainer? = nil
     ) {
+        self.libraryRepository = libraryRepository
+        self.libraryPersistenceStatus = libraryRepository == nil ? .unavailable : .available
+        self.retainedLibraryContainer = retainedLibraryContainer
         self.progressRepository = progressRepository
         self.practiceHistoryRepository = practiceHistoryRepository
         self.referenceMaterialResolver = referenceMaterialResolver
@@ -28,6 +36,8 @@ struct AppDependencies {
         self.persistenceStatus = persistenceStatus
         self.retainedModelContainer = retainedModelContainer
     }
+
+    var retainsLibraryModelContainer: Bool { retainedLibraryContainer != nil }
 
     var retainsProductionModelContainer: Bool {
         retainedModelContainer != nil
@@ -48,7 +58,8 @@ struct AppDependencies {
             referenceMaterialResolver: referenceMaterialResolver,
             clock: clock,
             localContextProvider: localContextProvider,
-            persistenceStatus: .available
+            persistenceStatus: .available,
+            libraryRepository: InMemoryLibraryExerciseRepository()
         )
     }
 

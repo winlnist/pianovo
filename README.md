@@ -6,7 +6,7 @@ Pianovo is a native SwiftUI piano-practice app for iPhone and iPad. Today provid
 
 The project began with a personal learning problem. Static sheet music shows *what* to play, but it does not organise practice, measure the attempt, or help a learner and teacher agree on what comes next. Pianovo combines a working MIDI practice loop with a Today experience for starting a structured twelve-week programme and viewing its saved day. Progress history, document access, and teacher-guided planning remain future workflows supported by implemented foundations.
 
-> **Development status:** active portfolio project. Today and Practice are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Milestone 6F.5 adds explicit learner-reported assignment completion and undo. Programme advancement, document access, and teacher workflows remain planned.
+> **Development status:** active portfolio project. Today, Practice, and the private local exercise Library are user-facing. Milestone 6F.4 connects Today’s generated sight-reading assignments to MIDI Practice and saved session records. Milestone 6F.5 adds explicit learner-reported assignment completion and undo. Programme advancement, document access, and teacher workflows remain planned.
 
 ## App preview
 
@@ -59,7 +59,16 @@ Only generated sight-reading assignments are actionable; other assignments remai
 - Session-only counts for correct answers, wrong attempts, accuracy, streak, and completed prompts.
 - Adaptive iPhone/iPad layout and an auto-hiding practice HUD that does not reflow the score.
 
-Practice remains directly available from navigation. Progress, Library, History, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
+Practice remains directly available from navigation. Progress, History, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
+
+### Private local exercise Library
+
+- Create exercises with a title, category, instructions, and learning purpose.
+- Browse/search, view details, edit, archive, and restore them from the Archived list.
+- Retain stable exercise identity and earlier saved revisions across edits and app launches.
+- Retry failed writes or refresh to check durable saved status.
+
+Library exercises are private written guidance on the device. They do not yet launch MIDI Practice or appear in Today. Exercise templates, programme editing, document import, teacher sharing, cloud sync, and AI coaching remain planned. Exercise creation, archiving, and restoration have been manually validated.
 
 ## Implemented foundations
 
@@ -152,6 +161,8 @@ The 6F.4 assigned sight-reading flow was also manually validated on a physical i
 
 Milestone 6F.5 automated verification passed **231 tests across 23 suites**, including completion/undo restoration and save-failure handling. The completion controls were also manually validated on a physical iPad: marking complete, undoing completion, restoration after reopening, required Beyer parts, and independence from assigned-session saving.
 
+Milestone 6F.7 automated verification passed **255 tests across 26 suites** and a clean simulator app build. Library validation covers disk restoration, immutable revisions, failed-save retry, stale edits, archive/restore, and preservation of the existing progress store. Manual validation confirmed exercise creation, archiving, and restoration.
+
 ## Current limitations
 
 - Practice is single-staff and one note at a time; there is no mixed grand staff, two-hand, chord, or rhythm-aware practice yet.
@@ -159,7 +170,7 @@ Milestone 6F.5 automated verification passed **231 tests across 23 suites**, inc
 - Assigned sight-reading saves session context and times, but numeric statistics remain temporary. Standalone Practice does not save sessions.
 - Today has no automatic mastery evaluation or controls to advance programme position.
 - Unsaved assigned sessions cannot be recovered after the app closes; force-quit recovery is deferred.
-- Progress, Library, History, Ask My Teacher, and Settings remain placeholder screens.
+- Progress, History, Ask My Teacher, and Settings remain placeholder screens.
 - Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
 - MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
 - PDF/photo import, optical music recognition, audio or raw MIDI performance recording, tempo/rhythm analysis, teacher accounts and teacher-created plans, Ask My Teacher chat, coach API, cloud sync, and collaboration remain planned workflows.
@@ -168,7 +179,7 @@ Milestone 6F.5 automated verification passed **231 tests across 23 suites**, inc
 
 ## Next milestones
 
-1. Define programme progression and its mastery policy separately from self-reported completion and session recording.
+1. Validate the local exercise Library, then add exercise/programme templates and editable learner plans; define progression separately from completion and mastery.
 2. Introduce document access and licensed/user-imported reference-material presentation.
 3. Add score-aligned MIDI timing and correctness analysis.
 4. Build learner progress and teacher planning workflows before considering accounts or cloud sync.
@@ -183,6 +194,7 @@ See the detailed [roadmap](docs/ROADMAP.md) for completed milestones and longer-
 - [Music Domain](docs/MUSIC_DOMAIN.md) and [Score Domain](docs/SCORE_DOMAIN.md) — musical concepts and full-score model.
 - [Practice Engine](docs/PRACTICE_ENGINE.md) — exercise generation, matching, and statistics.
 - [Programme Domain](docs/PROGRAMME_DOMAIN.md) — twelve-week structure and mastery rules.
+- [Content and Programmes](docs/CONTENT_AND_PROGRAMMES.md) — planned reusable exercises/templates, individual plans, and future sharing/backend boundaries.
 - [Persistence and History](docs/PERSISTENCE_AND_HISTORY.md) — stored records, schema, and deletion semantics.
 - [Reference Materials](docs/REFERENCE_MATERIALS.md) — logical catalogue and document-access boundaries.
 - [Import Pipeline](docs/IMPORT_PIPELINE.md) — MusicXML support and future PDF/photo recognition.

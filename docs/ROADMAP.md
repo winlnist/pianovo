@@ -2,7 +2,7 @@
 
 The roadmap keeps Pianovo small at first while preserving a path toward full interactive score practice.
 
-Milestone 6F.3 adds Today presentation and explicit programme start on top of the 6F.2 state foundation and technical Pianovo rename. Today shows the saved day; Practice remains the working MIDI reading experience. Milestone 6F.4 connects generated sight-reading assignments to finish-only session recording; assignment completion remains deferred.
+Milestones through 6F.5 provide Today programme start/saved-day presentation, assigned generated sight-reading sessions, and explicit self-reported completion/undo. Practice remains the working MIDI reading experience. The next direction is reusable content and editable learner programmes: 6F.6 records the design, followed by the private local exercise Library in 6F.7. Programme advancement, templates, programme editing, and remote services remain unimplemented.
 
 ## 0. Project Foundation - Completed
 
@@ -203,6 +203,76 @@ Milestone 6F.3 adds Today presentation and explicit programme start on top of th
 - Isolate failed SwiftData completion upserts from unrelated pending changes without schema or protocol changes.
 - Verify completion/undo restoration, repeated taps, required parts, stale positions, save/read failures, ambiguous saves, and the existing Practice flow.
 - Defer programme advancement and its mastery policy, PDFs, analysis, History/Progress UI, teacher/API/cloud work, and force-quit recovery.
+
+### 6F.6 Reusable Content and Programme Design - Design Recorded
+
+- Define exercise templates, exercises/revisions, programme templates, independent learner programmes, and scheduled assignments.
+- Support human-teacher and independent/AI-assisted learning with the same content model.
+- Design identity, ownership, attribution, versions, explicit updates, and history preservation before local authoring.
+- Treat Today as a projection of the current saved learner-programme day; retain the current seed and identifiers until a tested migration exists.
+- Plan a real local database plus future hosted accounts/content/API/sync and separate student-data access boundaries.
+- Record future notes, starter/paid access, and community/free/paid content without selecting commercial terms or providers.
+- See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md) for the design baseline, first-implementation acceptance criteria, and open later decisions.
+- Documentation only: no Swift, schema, project, dependency, runtime, or backend changes.
+
+### 6F.7 Local Exercise Library - Completed
+
+- Introduce framework-independent authored exercise identity, saved revisions, origin metadata, and validation.
+- Use a separately named/versioned Library SwiftData store behind its own repository; preserve the progress V1 schema/store unchanged.
+- Replace the Library placeholder with private list/detail/create/edit/archive/restore workflows for title, category, instructions, and learning purpose.
+- Preserve referenced revisions and existing progress/history; make failures explicit and retry safe.
+- Keep authored guidance honest: free-text exercises are not automatically playable or MIDI-assessable, and linked material does not imply document access.
+- Verify restoration, stable exercise/revision identity, validation, failures, archive behaviour, and unchanged Today/Practice functionality.
+- Defer templates, programme scheduling/activation, accounts, sharing, AI, document import, and payments.
+
+### 6F.8 Exercise Templates - Planned
+
+- Create/edit reusable exercise patterns with explicit defaults and validated configuration.
+- Instantiate independent exercises with origin/template revision retained; template edits do not rewrite existing exercises.
+- Add starter patterns without claiming unsupported notation generation or assessment.
+
+### 6F.9 Programme Templates and Editor - Planned
+
+- Arrange pinned exercise revisions into weeks, ordered days, and practice sections with contextual goals/durations.
+- Support configurable programme length and starter policies without a global twelve-week restriction.
+- Save/copy template revisions and validate references; do not rewrite active learner plans.
+
+### 6F.10 Individual Learner Programmes and Today Integration - Planned
+
+- Instantiate independent plans with unique assignment-occurrence IDs and preserved template/creator origin.
+- Specify and test migration from legacy definition-based progress before editable/multiple programme instances.
+- Adapt personal plans explicitly and preserve historical revisions; project their current assignments into Today.
+- Define next-day, unfinished-work, recovery/week-transition, and final-day behaviour separately from mastery and Beyer sequencing.
+- Adopt the existing seed as starter content only through an explicit compatibility path.
+
+### 6F.11 Local History and Learner Notes - Planned
+
+- Expose real saved session context/times and assignment status without inventing persisted numeric statistics.
+- Add private learner reflections/notes with explicit context; keep progress assessment distinct from self-report.
+- Define audiences for teacher feedback, private lesson notes, and shared lesson notes before later cross-account sharing.
+
+### 6F.12 Hosted Accounts, Synchronisation, and Teacher Collaboration - Planned
+
+- Select a hosted database/API and authentication approach against ownership, privacy, offline, and operational requirements.
+- Implement accounts, accepted teacher/student relationships, and server-enforced per-resource permissions.
+- Publish assignments/plan updates with explicit acknowledgement; synchronise authorised content, progress, and notes.
+- Verify idempotency, conflicts, account isolation, revocation/offline policy, and preserved local practice.
+
+### 6F.13 AI Coaching and Assisted Authoring - Planned
+
+- Support independent learner coaching and teacher/learner exercise/programme draft generation using the shared model.
+- Connect a backend API with validated outputs, provenance, explicit acceptance, and access/cost controls.
+- Use only available and authorised evidence; distinguish measurements, self-reports, and missing assessment capabilities.
+- This can follow the required backend/access foundations without waiting for every teacher-collaboration feature.
+
+### 6F.14 Community Sharing and Creator Rewards - Future
+
+- Discover/publish free or paid exercises and both kinds of templates with attribution and revision history.
+- Define acquisition, personal/teaching use, adaptation/redistribution permissions, creator compensation, moderation, and contact policies.
+- Keep content purchases separate from teacher relationships and access to learner data.
+- Decide starter/free access, paid continuation, AI access, and purchase rules before implementation; no pricing or entitlement promises yet.
+
+These are staged directions, not delivery dates or permission to implement all stages at once. Each implementation should use a focused scope and explicit acceptance criteria. The longer-term rendering, analysis, progress, and release tracks below remain separate work.
 
 ## 7. Interactive Song Practice
 

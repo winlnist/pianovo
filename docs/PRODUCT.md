@@ -13,8 +13,8 @@ Pianovo began as a personal response to that gap. The immediate goal is to reduc
 The product direction joins three ideas:
 
 - **Practise:** play generated or assigned material with immediate MIDI feedback.
-- **Plan:** follow a structured programme that progresses through demonstrated mastery.
-- **Collaborate:** eventually allow a teacher to review evidence and adjust a student’s plan.
+- **Plan:** create or follow an individual programme built from reusable exercises and templates, with progression distinct from self-reported completion.
+- **Collaborate:** eventually let teachers assign work, review evidence, take lesson notes, and adjust a student’s plan; support independent learning with AI coaching as a separate path.
 
 ## Intended users
 
@@ -24,7 +24,25 @@ A piano learner who wants clear daily work, immediate feedback, and evidence of 
 
 ### Teacher — future workflow
 
-A teacher who can eventually review a student’s practice history, assign or adjust upcoming material, and answer questions. Teacher accounts, remote planning, chat, and cloud sync are not implemented in the current app.
+A teacher who creates exercises and both exercise/programme templates, adapts individual student plans, publishes work to student iPads, reviews authorised practice history, and records lesson feedback/notes. Teacher accounts, remote planning, notes UI, chat, and cloud sync are not implemented in the current app.
+
+### Independent learner — future workflow
+
+A learner who begins with starter exercises and a starter programme template, adapts their own plan, and can use AI coaching for explanation, exercise/programme drafting, and proposed adjustments. A human teacher is optional. AI must distinguish measured practice evidence from learner reports and cannot imply assessments the app does not support.
+
+### Creator/community participant — future workflow
+
+Teachers and other permitted creators may eventually publish free or paid teaching material. Teachers can acquire and adapt templates under their permissions; learners can acquire programmes for independent study and may enquire about lessons. Creator rewards, community publishing, purchases, and contact features are not implemented. Pricing and paid-access rules remain undecided.
+
+## Agreed content and programme direction — planned
+
+The shared foundation is exercise templates, authored exercises, programme templates, individual learner programmes, and scheduled assignments. An exercise is reusable content; an assignment places a specific exercise revision into a learner's week/day/section with a goal and planned duration. Today displays that saved individual plan. Completion belongs to the assignment, not the shared exercise.
+
+Templates produce independent editable content/plans while retaining origin and attribution. Updates must be explicit and preserve existing practice history. The twelve-week programme is a starter default, not a global limit; later templates can describe longer or differently structured programmes.
+
+The first implementation is a durable local exercise Library. Its identity, version, ownership, and repository boundaries must support a later hosted database/API, offline synchronisation, accounts, and authorised teacher/student sharing. AI-assisted content uses the same model and starts as a reviewable draft. Marketplace and entitlement handling build on those foundations later.
+
+See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md) for the design baseline, compatibility constraints, and phased scope. None of these planned editors or services is a shipped workflow.
 
 ## Current user-facing experience
 
@@ -38,7 +56,13 @@ The app launches into Today, where learners explicitly start the programme at We
 - Receive a new exercise after completing the current one.
 - Review session-only correct, wrong, attempt, accuracy, streak, and completion values.
 
-The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, Library, History, Ask My Teacher, and Settings currently show “coming later” states.
+The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, History, Ask My Teacher, and Settings currently show “coming later” states.
+
+## Private local exercise Library (6F.7)
+
+Library supports creating, viewing, searching, editing, archiving, and restoring written exercises on the device. Each has a title, category, instructions, and learning purpose. Saved edits retain earlier revisions and stable exercise identity. Active and Archived lists remain available after reopening. Failures support retry or a fresh read without reporting an unverified save as successful.
+
+Exercises are guidance, not automatically playable notation or scheduled programme assignments. Library does not launch MIDI Practice, import documents, create templates, or modify the current Today plan. Exercises are private/local; teacher sharing, AI coaching, and hosted synchronisation are not implemented.
 
 ## Implemented but not yet exposed as complete workflows
 
@@ -62,11 +86,12 @@ The remaining foundations must not be presented as working Progress, History, do
 
 ## Near-term product direction
 
-- Extend assigned practice only when its source can be presented honestly.
-- Define explicit programme progression separately from self-reported completion and session recording.
-- Present user-imported or legally distributable reference material.
-- Add score-aligned MIDI timing and correctness analysis.
-- Expose progress in a way that is useful to both learner and teacher.
+- Record the content/template/programme design and future hosted-service boundaries (6F.6).
+- Build reusable exercise templates on the verified private local Library foundation (6F.8).
+- Add exercise templates, programme-template editing, and independent learner plans in subsequent milestones.
+- Connect editable learner plans to Today, with explicit progression defined separately from completion, session saving, and mastery.
+- Expose saved history and learner notes, then authorised teacher review.
+- Add document access and score-aligned analysis through their own scoped milestones.
 
 ## Longer-term vision
 
@@ -74,7 +99,10 @@ The remaining foundations must not be presented as working Progress, History, do
 - Interactive MusicXML scores and full-song practice.
 - PDF/photo import with optical music recognition and a verification workflow.
 - Tempo and note-quality feedback from MIDI first, with audio analysis considered separately.
-- Structured learner/teacher collaboration, accounts, and optional sync.
+- Hosted accounts, authorised learner/teacher collaboration, and offline-capable synchronisation.
+- AI coaching for independent learners and AI-assisted authoring for teachers, using reviewable content/plan drafts.
+- Community sharing of free or paid exercises/templates, creator attribution/rewards, and permitted adaptation.
+- Starter content and possible paid continuation; pricing and access rules remain undecided.
 
 ## Product principles
 
@@ -91,7 +119,7 @@ The remaining foundations must not be presented as working Progress, History, do
 
 - No mixed/grand-staff, two-hand, chord, accidental, or rhythm-varying generated practice.
 - No persisted numeric statistics; assigned sight-reading saves session context and times only.
-- No functional Progress, Library, History, teacher, or settings workflows.
+- No functional Progress, History, teacher, or settings workflows. No exercise-template or programme-editor workflows.
 - No programme-advancement controls, automatic mastery, generic guided sessions, or durable active-session recovery.
 - No production MusicXML file picker or imported-song practice.
 - No PDF/photo import, optical music recognition, or score correction UI.

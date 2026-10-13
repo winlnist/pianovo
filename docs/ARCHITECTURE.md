@@ -8,9 +8,31 @@ The app opens in Today, with explicit programme start, saved-day presentation, a
 
 This boundary matters when describing the product:
 
-- **Working UI:** Today programme start, saved-day presentation, assigned sight-reading session recording, and learner-reported assignment completion/undo; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
+- **Working UI:** private local exercise Library; Today programme start, saved-day presentation, assigned sight-reading session recording, and learner-reported assignment completion/undo; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.
 - **Implemented foundations:** twelve-week programme, SwiftData repositories, Today presentation state, logical reference-material resolution, limited MusicXML import, and development-facing Verovio rendering.
-- **Planned UI:** programme progression, broader assigned practice, Progress, Library, History, teacher collaboration, document import, and interactive songs.
+- **Planned UI:** programme progression, broader assigned practice, Progress, History, teacher collaboration, document import, and interactive songs.
+
+## Planned content and hosted-service architecture (6F.6)
+
+The agreed direction adds reusable exercise templates, authored exercise revisions, programme templates, independent learner programme instances, and scheduled assignments. These are proposed boundaries, not existing Swift types or storage models. See [Reusable Content, Programmes, and Sharing](CONTENT_AND_PROGRAMMES.md).
+
+Content/programme rules remain framework-independent. Application services own authoring, instantiation, and explicit update adoption. Planned local SwiftData content repositories will provide real offline storage; future API/sync adapters will connect the same identities and revisions to a hosted service. Content repositories stay separate from progress/history repositories. Views do not own storage or network orchestration, and the Music Domain remains unchanged.
+
+Assignments reference pinned exercise revisions and have identities unique to each learner programme occurrence. Templates, editable copies, and individual plans retain separate ownership and origin. Published revisions are immutable; accepting a later update must preserve historical references and cannot silently rewrite completion or mastery evidence. The current definition/version-based progress model requires explicit instance/revision mapping and a tested migration before repeated template instantiation or editable active plans.
+
+The backend will enforce account/resource access for teacher/student relationships, publication, and authorised notes/progress sharing. Public teaching content and private learner records have separate access boundaries. Device role labels, purchases, or template authorship do not grant access to student data. Offline sync needs idempotent operations, conflict handling, and acknowledged delivery; no provider or sync implementation is chosen by this design task.
+
+AI authoring/coaching sits behind application/backend adapters and produces validated drafts reviewed by the learner or teacher. It must not fabricate practice evidence or automatically publish/assign changes. Shared/free/paid content and adaptation permissions build on creator identity, provenance, and versioning later. No account, payment, AI, or network code is introduced in 6F.6.
+
+The first implementation is a private local exercise Library. Storage topology and schema evolution must be documented before adding content models; the current V1 progress schema cannot be silently reinterpreted or extended without a compatibility plan.
+
+## Local exercise Library implementation (6F.7)
+
+`LibraryScreen` owns a `LibraryViewModel`; each modal form owns a stable `LibraryEditorViewModel`. Views edit drafts and consume state. Domain mutation rules validate required text, preserve immutable revisions/origin, and reject stale edits. The editor freezes IDs, content, and clock timestamp before suspension; failed retries reuse the same request. Archive/restore use expected-revision checks and preserve all revisions. Failed reads retain known content with actions disabled, rather than pretending the Library is empty.
+
+`LibraryExerciseRepository` is an explicitly MainActor async/throwing application boundary with separate SwiftData and preview adapters. Foundation-only Library values do not depend on SwiftUI, SwiftData, MIDI, rendering, or networking. A separately named/versioned `PianovoLibrary` container has no CloudKit integration and leaves the current progress V1 store unchanged. Library/progress bootstraps fail independently with no temporary production fallback. Fresh writer/reader contexts and durable verification prevent phantom success after failed writes.
+
+Only Library replaces its placeholder. Authored exercises are written guidance and cannot launch Practice or enter Today yet. Scheduling, templates, AI, shared accounts, and backend services remain future work. See [Content and Programmes](CONTENT_AND_PROGRAMMES.md) for storage/version compatibility and migration gates.
 
 ## Dependency Rule
 
@@ -287,4 +309,4 @@ The current suites cover:
 - Reference-material resolution and Beyer Prima/Seconda metadata.
 - Today presentation state and dependency bootstrap.
 
-The verified 6F.3 baseline is a clean app build with 191 tests passing across 20 suites. Milestone 6F.4 adds focused context, coordinator, and persistence-failure tests. Dedicated UI automation and screenshot regression testing remain future work.
+The current automated implementation verification (6F.7) is a clean app build with 255 tests passing across 26 suites, including Library domain/storage/editor checks, assigned-session lifecycle, completion/undo, and persistence-failure tests. The 6F.6 design task changes documentation only; manual Library validation confirmed creation, archive, and restore. Dedicated UI automation and screenshot regression testing remain future work.

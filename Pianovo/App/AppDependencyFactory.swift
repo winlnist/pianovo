@@ -3,24 +3,21 @@ import SwiftData
 @MainActor
 enum AppDependencyFactory {
     static func makeProductionDependencies(
-        makeContainer: @MainActor () throws -> ModelContainer = {
-            try PracticeHistoryModelContainerFactory.makeContainer()
-        }
+        makeLibraryContainer: @MainActor () throws -> ModelContainer = { try LibraryModelContainerFactory.makeContainer() },
+        makeContainer: @MainActor () throws -> ModelContainer = { try PracticeHistoryModelContainerFactory.makeContainer() }
     ) -> AppDependencies {
-        do {
-            let container = try makeContainer()
-            let repository = SwiftDataPracticeHistoryRepository(context: ModelContext(container))
-            return AppDependencies(
-                progressRepository: repository,
-                practiceHistoryRepository: repository,
-                referenceMaterialResolver: PianovoReferenceMaterialCatalogue.resolver(),
-                clock: SystemPracticeClock(),
-                localContextProvider: SystemPracticeLocalContextProvider(),
-                persistenceStatus: .available,
-                retainedModelContainer: container
-            )
-        } catch {
-            return .unavailablePersistence()
-        }
+        // The stores bootstrap independently: neither failure selects a temporary production fallback.
+        let progressContainer = try? makeContainer()
+        let libraryContainer = try? makeLibraryContainer()
+        let progress = progressContainer.map { SwiftDataPracticeHistoryRepository(context: ModelContext($0)) }
+        let library = libraryContainer.map { SwiftDataLibraryExerciseRepository(container: $0) }
+        return AppDependencies(
+            progressRepository: progress, practiceHistoryRepository: progress,
+            referenceMaterialResolver: PianovoReferenceMaterialCatalogue.resolver(),
+            clock: SystemPracticeClock(), localContextProvider: SystemPracticeLocalContextProvider(),
+            persistenceStatus: progress == nil ? .unavailable : .available,
+            retainedModelContainer: progressContainer, libraryRepository: library,
+            retainedLibraryContainer: libraryContainer
+        )
     }
 }

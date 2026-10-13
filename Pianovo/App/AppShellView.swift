@@ -43,7 +43,9 @@ struct AppShellView: View {
                 guard assignmentPractice == nil else { return }
                 assignmentPractice = context
             }
-        case .progress, .library, .history, .askMyTeacher, .settings:
+        case .library:
+            LibraryScreen(dependencies: dependencies)
+        case .progress, .history, .askMyTeacher, .settings:
             ComingSoonView(destination: selectedDestination ?? .today)
         }
     }

@@ -1,0 +1,158 @@
+# Reusable Content, Programmes, and Sharing
+
+## Status and direction
+
+Milestone 6F.6 records the agreed product direction and proposed architecture on 12 October 2026. This document records future design and the separate 6F.7 local Library implementation boundary. Template/programme editors, a backend, and sharing services are not implemented.
+
+Pianovo should support teachers organising work for students and learners organising their own work, including with AI coaching. Both paths use reusable exercises, exercise templates, programme templates, and individual learner programmes. A later community can distribute free or paid material and reward creators.
+
+Today and Practice are working through 6F.5. Milestone 6F.7 implements the private local exercise Library described below; creation, archive, and restore were manually validated. History, Progress, teacher accounts, programme editing, AI coaching, cloud synchronisation, payments, and community publishing remain future workflows. The current exercise-source catalogue is code-defined metadata; it is not an editable exercise database. The original SwiftData store holds progress and history. A separate Library store now holds authored exercises and saved revisions; editable templates remain future work.
+
+## Shared content model
+
+These are conceptual entities. Swift names, repository methods, and storage schemas will be specified in the implementation milestones.
+
+| Entity | Responsibility | Example |
+| --- | --- | --- |
+| Exercise template | A reusable starting pattern with defined configurable fields or defaults | Scale warm-up with a key and instructions |
+| Exercise | A specific activity authored from scratch or instantiated from an exercise template | Relaxed C-major scale practice |
+| Programme template | A reusable arrangement of exercise revisions into ordered weeks, days, and sections | A beginner practice plan |
+| Learner programme | An independent plan instantiated for one learner, from a template or from scratch | A student's adapted beginner plan |
+| Assignment | One scheduled occurrence of an exercise within a learner programme | Week 1, Day 2, Morning: practise the scale for ten minutes |
+| Progress and history | The learner's completion, sessions, reflections, and later assessment evidence | Day 2 completion and saved session |
+
+An exercise owns reusable content: title, instructions, category, learning purpose, optional logical material references, and supported delivery metadata. An assignment owns contextual instructions or goal overrides, planned duration, order, and placement. Reusing an exercise never shares completion between assignments.
+
+Exercise templates and exercises remain distinct: changing a template does not rewrite exercises already created from it. Programme templates and learner programmes remain distinct for the same reason. A teacher, learner, or AI-assisted authoring flow can create content without requiring a separate curriculum model for each role.
+
+```mermaid
+flowchart TD
+    ET[Exercise template] -->|Create an independent exercise| E[Exercise revision]
+    E -->|Reference a specific revision| PT[Programme template revision]
+    PT -->|Instantiate for one learner| LP[Learner programme]
+    E -->|Assign directly| A[Scheduled assignment]
+    LP --> A
+    A --> T[Today: current saved day]
+    A --> H[Learner completion and history]
+```
+
+Example: create a C-major warm-up once, place it in Day 1 and Day 2 of a template, then instantiate the template for two students. The four resulting assignments have separate identities and progress. Adapting one student's Day 2 goal affects neither the other student nor the original template.
+
+## Today, weeks, and programme position
+
+Today is the learner-facing projection of the current saved day in an individual programme. It displays assignments rather than embedding exercise content in SwiftUI. The future editor places exercises into weeks, days, and sections; Library manages reusable content.
+
+The twelve-week seed, six practice days plus one recovery day, and Morning/Evening structure are starter defaults. Future programmes can have different lengths, including six months or one or two years. Programme length and practice-day structure must be validated as content, rather than fixed global constants. Exact authoring limits and date-based scheduling remain future decisions.
+
+Programme days describe ordered work. Calendar date and time of day do not advance the programme. Repeating an exercise, completing an assignment, saving a session, changing the current day, and demonstrating mastery are distinct actions.
+
+Explicit next-day navigation is deferred until the editable programme model and progression policy are defined. Later navigation must preserve incomplete work and history, disclose unfinished assignments, handle recovery and week boundaries, and define the final-day state. It must not infer mastery or select the next Beyer exercise merely from a day/week change. The existing later-week current-Beyer source is unresolved metadata, not an implemented adaptive exercise selector.
+
+## Identity, versions, copies, and updates
+
+The following rules are the design baseline for local authoring and future sharing:
+
+- Allocate opaque stable entity and revision identifiers locally; they must remain usable after synchronisation. Do not derive identity from a title, display name, array index, date, or server-only database key.
+- Saved content revisions referenced by assignments or published templates are immutable. Saving an edit creates a new revision; drafts are editable working copies.
+- Retain origin entity/revision and creator attribution when instantiating or adapting content. A copy has its own identity and owner. It must not falsely claim the original creator endorsed the adaptation.
+- A programme template references specific exercise revisions. An instantiated learner programme resolves those references into its own stable plan/assignment identities, retaining the source template revision.
+- Each occurrence of an exercise has a separate assignment identity, including repeats on the same day. Separate learners and repeated uses of a programme template must not collide in progress storage.
+- Template or exercise updates are offered explicitly. They must not silently replace assigned work or change the meaning of existing completion/history records.
+- Applying an update produces a new plan revision and describes the affected assignments. Replacement work gets new assignment identities; existing historical references remain resolvable. The precise reconciliation UI is a later milestone.
+- Archive referenced content instead of removing the revisions needed to interpret history. Hard deletion, account deletion, retention, and acquired-content access after creator withdrawal need explicit later policies.
+
+Content ownership, author attribution, and access rights are separate. A local owner identity can later be linked to an authenticated account without changing content IDs. A teacher's name is display metadata, not an ownership or authorisation key.
+
+## Local database and future hosted service
+
+The first Library uses a real local database behind a content repository boundary. It is the first adapter for the shared model, not a mock database or a UI-only array intended to be replaced wholesale.
+
+Planned boundaries:
+
+| Boundary | Responsibility |
+| --- | --- |
+| Content/programme domain | Identity, revision references, validation, instantiation, and scheduling rules |
+| Application services | Authoring, copying, explicit update adoption, and learner-facing actions |
+| Local persistence adapter | SwiftData storage, transactions, schema versions, offline reads/writes |
+| Future API/sync adapter | Serialisation, authentication, transfer, reconciliation, and durable acknowledgement |
+| Hosted service | Accounts, access enforcement, shared/published content, programme distribution, authorised progress sharing |
+| File/material adapter | Device access and availability of referenced documents, separate from catalogue content |
+
+Domain types must remain independent of SwiftUI, SwiftData, HTTP clients, AI SDKs, and hosting vendors. Views consume application state. New content repositories must not overload the existing progress/history protocols.
+
+The hosted system will eventually retain shared exercises and templates, account profiles, teacher/student relationships, programme assignments, and authorised notes/progress. Actual document/media storage and access are separate from database metadata. A catalogue reference does not make a PDF available, confer distribution rights, or make arbitrary instructions MIDI-assessable.
+
+The iPad retains usable content and supports practice offline. Before remote rollout, define an outbox of pending local changes, idempotent operations, revision-based conflict checks, retry/backoff, explicit sync status, and account isolation. Network loss must not appear as successful remote delivery; teacher updates should be visibly pending until acknowledged.
+
+Published immutable revisions avoid silent content merging. Conflicting edits to mutable drafts, plans, relationships, and notes require explicit reconciliation; device clocks alone must not determine which important edit wins. Permission changes and revoked relationships require a server-enforced access policy plus a defined policy for cached/offline data.
+
+No backend provider, new dependency, authentication library, API, sync engine, or payment provider is selected or implemented by this milestone. These choices follow the access, data, offline, and operating-cost requirements.
+
+## Teacher, learner, and AI workflows
+
+### Teacher-guided learning
+
+A teacher authors exercises/templates, adapts a plan for a student, and explicitly publishes assignments or updates. A student follows their own programme on their iPad. Authorised teacher review can show recorded practice before a lesson, support discussion and notes during the lesson, and inform the next plan revision.
+
+An invitation/accepted relationship and permissions are required for cross-account access. Acquiring a teacher's template does not automatically create a teacher/student relationship or grant that teacher access to progress.
+
+### Independent learning and starter content
+
+A learner can start without a human teacher, using starter exercise templates, exercises, and programme templates. They can create/adapt their own material and later request AI guidance. A teacher account or relationship must not be a prerequisite for self-learning.
+
+The current seed programme is a candidate starter template. It cannot be converted or reassigned silently: existing stable IDs, saved position, completion, and history must survive a tested migration.
+
+### AI coaching and authoring
+
+AI is both an authoring aid for teachers and a learner-facing coach for independent learning. It can propose exercises/programmes, explain tasks, answer questions, and suggest adjustments based on goals, available time, learner feedback, and actual evidence available to Pianovo.
+
+Use the same domain entities for manual and AI-assisted content. Generation produces a validated draft with origin metadata; the teacher or learner reviews and accepts it before it becomes assigned work. Generated text must not automatically become notation, supported Practice content, mastery evidence, a published community resource, or a programme change.
+
+A future backend API can mediate generation and coaching; an assistant interface in the app does not require an autonomous agent in the first version. Provider credentials and privileged actions belong on the server. AI requests use explicitly permitted information and remain behind adapters. The self-learner AI path can proceed once its required backend/access controls exist, without depending on completion of every teacher-collaboration feature.
+
+Current MIDI practice checks expected pitches. It does not establish rhythm, fingering, posture, or general musical mastery, and numeric statistics are currently temporary. AI guidance must distinguish observed evidence, self-reported completion, and unsupported assumptions. Missing assessment data must not be fabricated.
+
+## Notes, privacy, and future community
+
+Planned note types include private learner reflections, student-visible teacher feedback, private teacher lesson notes, and shared lesson notes. Author, subject learner/programme context, audience, and revision history must be explicit. Notes need their own workflow; marking an assignment complete must not create an invented reflection or lesson note.
+
+The design default is private content and private learner progress. Shared teaching material and personal student data occupy separate access boundaries. Role labels on the device do not grant authority: the hosted service enforces per-resource access. Changing a relationship must not expose another student's programme or notes. Detailed permissions, retention, account-linking, and offline revocation policy must be settled before remote deployment.
+
+A future community can publish free or paid exercises and both kinds of templates. Learners can acquire programmes for independent study, teachers can acquire/adapt teaching material, and users may contact creators about lessons. Creator attribution, publication version, and permissions for personal use, teaching use, adaptation, and redistribution must be explicit. Permission to adapt does not inherently include permission to resell or distribute an adapted copy.
+
+Starter/free access, paid continuation, AI subscriptions or usage limits, template purchases, and creator compensation are product options. Pricing, payouts, moderation, content quality review, contact mechanisms, and purchase/withdrawal rules are undecided. No commercial entitlement is inferred from a local content flag. Third-party materials remain subject to their separately recorded availability and rights status.
+
+## First implementation: local exercise Library (6F.7)
+
+The first implementation is a deliberately small local authoring workflow:
+
+- Define framework-independent exercise identity, immutable saved revisions, optional origin attribution, and structured validation.
+- Store private exercises durably through a local content repository and versioned SwiftData adapter.
+- Replace only the Library placeholder with list, detail, create, edit, and archive actions.
+- Create exercises from scratch with a title, category, instructions, and learning purpose; display any logical reference and its availability honestly.
+- Keep initial authored exercises as guidance. Do not make free-text instructions playable or replace them with random sight-reading. Practice support needs a separately validated delivery adapter.
+- Preserve referenced revisions when editing/archiving; show save failures and retry without false success.
+- Verify offline restoration, revision identity, validation, failed saves, archive behaviour, and preservation of the existing Today/Practice/progress store.
+
+Exercise-template creation, programme scheduling, replacing the active seed plan, document import, generated notation authoring, accounts, network sharing, AI, notes UI, and payments are later milestones. Their identity/version boundaries are designed here; their whole schemas and services need not be implemented in 6F.7.
+
+### 6F.7 storage decision and implementation boundary
+
+Use a separate named `PianovoLibrary` SwiftData configuration, explicitly stored as `PianovoLibrary.store` in application support, with `LibrarySchemaV1` and `LibraryMigrationPlan`. CloudKit is explicitly disabled; this is local storage, not implemented cloud sharing. The existing progress schema, migration plan, identifiers, and default store are unchanged. The two containers bootstrap independently and remain retained by app dependencies; a failure in one does not disable the other or silently select an in-memory production fallback.
+
+Library stores have exercise headers, immutable revision payloads, and one persistent local owner identity created with the first successful exercise write. UUID-based content/owner/revision identities survive edits, archives, and relaunches. The owner is an installation-local content identity, not a fabricated teacher account or authority to claim a remote account.
+
+`LibraryExerciseRepository` is an explicitly MainActor, async/throwing application boundary so SwiftData access stays confined. Domain values, validation, and mutation rules are Foundation-only. SwiftData uses isolated writer contexts with autosave disabled, rollback on failure, fresh durable verification, and optimistic expected-revision checks. Retrying the exact create/revision/archive request is idempotent; changed or conflicting identities are rejected. Parent revision links define order even if device time changes. Future schema/payload changes require migration planning.
+
+The screen offers list/search, Active/Archived views, detail, create/edit forms, archive, and restore. New exercises contain written guidance only. Logical material references are preserved and labelled without claiming access; the initial form does not import documents or attach new reference files. Cancel performs no write; closing after an ambiguous save does not delete a change that reached storage. An explicit or post-editor refresh reads durable state.
+
+The initial workflow has no template/editor scheduling, no generated notation authoring, no learner completion in Library, no AI, accounts, networking, payments, or history mutation. Preview/test repositories are in memory; production content is not seeded with demonstration exercises.
+
+
+## Compatibility and implementation gates
+
+The current `PracticeProgramme`, `PracticeAssignment`, and `ExerciseSource` types remain unchanged in this design task. An `ExerciseSource` is source metadata, not a substitute for an authored exercise/revision. The future content/programme adapter must supply resolved, validated definitions to Today while preserving the framework boundaries.
+
+Current progress records refer to a programme definition/version and assignment IDs; they do not yet model separate learner programme instances or exercise revisions. Before enabling repeated template instantiation, multiple learners, or editable active plans, specify instance/revision references and a tested migration. Do not reuse template assignment IDs as learner assignment IDs. Do not reinterpret legacy progress as belonging to a newly created plan.
+
+The following remain open before their respective implementations: exact template fields/configuration, programme editor limits, next-day/end-of-programme policy, active-plan revision adoption and legacy-progress migration, hosting/authentication provider, sync conflicts, note-sharing permissions, commercial terms, and AI provider/access policy.
