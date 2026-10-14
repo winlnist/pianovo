@@ -269,9 +269,13 @@ Implementation design and legacy compatibility audit: [Individual Learner Progra
 - Add append-only private notes for saved sessions and programme days via a V4-to-V5 Library migration.
 - Preserve original progress/history schemas, Practice/MIDI and numeric-statistic boundaries; no teacher, account, cloud or Progress workflow is added.
 
-### 6F.12 Hosted Accounts, Synchronisation, and Teacher Collaboration - Planned
+### 6F.12 Hosted Accounts, Synchronisation, and Teacher Collaboration - Foundations in Progress
 
-- Select a hosted database/API and authentication approach against ownership, privacy, offline, and operational requirements.
+- Staged scope: [Hosted Accounts and Sync](HOSTED_ACCOUNTS_AND_SYNC.md). Supabase, optional accounts and explicit cloud opt-in are confirmed; no live cloud functionality is implemented.
+- 6F.12A implements local account/session/consent contracts, durable queue/cursors/transition receipts, Library V5-to-V6 migration and an undeployed private Supabase schema with local PostgreSQL access checks. No login UI, SDK, automatic upload, download cache or teacher grants are added.
+- 6F.12B remains planned and requires development project/auth configuration, typed payloads, server receipts/conflict reconciliation and transactional local-write/outbox integration before live same-account sync.
+- Configure the selected Supabase provider and agree the authentication approach against ownership, privacy, offline, and operational requirements.
+- Stage the work as contracts/account isolation, optional private account sync, accepted relationships, then reviewed teacher delivery; do not implement all hosted features in one change.
 - Implement accounts, accepted teacher/student relationships, and server-enforced per-resource permissions.
 - Publish assignments/plan updates with explicit acknowledgement; synchronise authorised content, progress, and notes.
 - Verify idempotency, conflicts, account isolation, revocation/offline policy, and preserved local practice.

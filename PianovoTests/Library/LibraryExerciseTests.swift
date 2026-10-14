@@ -202,8 +202,8 @@ struct LibraryRepositoryTests {
     @Test func libraryHasItsOwnVersionedSchemaAndNoProgressModels() {
         #expect(LibrarySchemaV1.versionIdentifier == Schema.Version(1, 0, 0))
         #expect(LibrarySchemaV1.models.count == 3)
-        #expect(LibraryMigrationPlan.schemas.count == 5)
-        #expect(LibraryMigrationPlan.stages.count == 4)
+        #expect(LibraryMigrationPlan.schemas.count == 6)
+        #expect(LibraryMigrationPlan.stages.count == 5)
         #expect(PracticeHistorySchemaV1.models.count == 6)
     }
 
