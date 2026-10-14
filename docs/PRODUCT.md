@@ -56,7 +56,9 @@ The app launches into Today, where learners explicitly start the programme at We
 - Receive a new exercise after completing the current one.
 - Review session-only correct, wrong, attempt, accuracy, streak, and completion values.
 
-The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Progress, Ask My Teacher, and Settings currently show “coming later” states.
+The paper-like score remains stable while an auto-hiding HUD exposes MIDI status and controls. Navigation exposes Today, Practice, Library, and History. Progress, Ask My Teacher, and Settings are planned and hidden from navigation.
+
+A dismissible Getting started guide appears once until dismissed and can be reopened from the main toolbar. It explains USB MIDI connection, checking actual note input, the original programme versus authored learner plans, and saved versus temporary records. Open Practice/Today/Library changes navigation only; it never starts a programme, creates content, or records a session. The guide is available without accounts or network access.
 
 ## Private local exercise Library (6F.7)
 

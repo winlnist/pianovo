@@ -274,6 +274,7 @@ Implementation design and legacy compatibility audit: [Individual Learner Progra
 - Staged scope: [Hosted Accounts and Sync](HOSTED_ACCOUNTS_AND_SYNC.md). Supabase, optional accounts and explicit cloud opt-in are confirmed; no live cloud functionality is implemented.
 - 6F.12A implements local account/session/consent contracts, durable queue/cursors/transition receipts, Library V5-to-V6 migration and an undeployed private Supabase schema with local PostgreSQL access checks. No login UI, SDK, automatic upload, download cache or teacher grants are added.
 - 6F.12B remains planned and requires development project/auth configuration, typed payloads, server receipts/conflict reconciliation and transactional local-write/outbox integration before live same-account sync.
+- Live Supabase integration is deferred by the user while preparing a local-first TestFlight release. Preserve the verified 6F.12A foundations without wiring accounts or uploads into the app.
 - Configure the selected Supabase provider and agree the authentication approach against ownership, privacy, offline, and operational requirements.
 - Stage the work as contracts/account isolation, optional private account sync, accepted relationships, then reviewed teacher delivery; do not implement all hosted features in one change.
 - Implement accounts, accepted teacher/student relationships, and server-enforced per-resource permissions.
@@ -320,6 +321,10 @@ These are staged directions, not delivery dates or permission to implement all s
 - Keep local persistence authoritative first; evaluate accounts and sync only after the local workflow is useful.
 
 ## 10. App Store Readiness
+
+Local-first release preparation has begun. Navigation now exposes only Today, Practice, Library and History; planned destinations retain their identifiers but are hidden. No release build has been uploaded and no App Store approval is implied. Use the [Local Release Checklist](LOCAL_RELEASE_CHECKLIST.md) to record outstanding device validation and distribution setup before TestFlight. Live Supabase, teacher collaboration and AI are deferred.
+
+A dismissible, locally remembered Getting started guide now covers USB MIDI connection, original versus authored programme setup and honest saving boundaries, with navigation-only shortcuts and toolbar reopening. The user reported the guide working on a physical iPad on 14 October 2026; broader release checks remain pending. This does not implement accounts, automatic setup or new practice behaviour.
 
 - Polish accessibility, onboarding, and error states.
 - Harden MIDI handling.

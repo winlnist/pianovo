@@ -6,6 +6,10 @@ Pianovo uses a layered architecture that keeps musical truth, practice behavior,
 
 The app opens in Today, with explicit programme start, saved-day presentation, and an assigned generated sight-reading session action. Practice remains directly available as the existing continuous single-staff experience. Progress, document access, MusicXML, and full-score rendering are foundations rather than complete learner-facing workflows.
 
+`AppDestination.availableDestinations` limits navigation to Today, Practice, Library, and History for the local release. Planned destination cases and their stable identifiers remain intact; their fallback views are not exposed in the sidebar. Live Supabase integration is deferred while local TestFlight readiness is checked; the unused 6F.12A contracts remain preserved.
+
+`GettingStartedScreen` presents static connection/programme/save guidance. `AppShellView` owns sheet presentation and a versioned local `AppStorage` dismissal preference; closing or swiping away acknowledges the guide, while the toolbar always permits reopening it. Destination shortcuts change only shell selection. The guide never owns MIDI services, programme mutation or persistence, and is not added to an active assigned-session screen. No account, permission prompt, remote service or SwiftData schema change is introduced by onboarding.
+
 This boundary matters when describing the product:
 
 - **Working UI:** local History/private learner notes, private local exercise Library; Today programme start, saved-day presentation, assigned sight-reading session recording, and learner-reported assignment completion/undo; Treble/Bass generated practice, native notation, CoreMIDI matching, and session-only statistics.

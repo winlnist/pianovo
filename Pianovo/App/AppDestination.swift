@@ -7,6 +7,9 @@ nonisolated enum AppDestination: String, CaseIterable, Identifiable, Hashable {
     case askMyTeacher
     case settings
 
+    /// Only working workflows appear in navigation; planned identifiers remain stable.
+    static let availableDestinations: [Self] = [.today, .practice, .library, .history]
+
     var id: String {
         rawValue
     }

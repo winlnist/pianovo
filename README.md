@@ -59,7 +59,7 @@ Only generated sight-reading assignments can launch in-app MIDI Practice; other 
 - Session-only counts for correct answers, wrong attempts, accuracy, streak, and completed prompts.
 - Adaptive iPhone/iPad layout and an auto-hiding practice HUD that does not reflow the score.
 
-Practice remains directly available from navigation. Progress, Ask My Teacher, and Settings remain placeholder destinations with “coming later” states.
+Navigation exposes Today, Practice, Library, and History. Progress, Ask My Teacher, and Settings remain planned and are hidden from navigation.
 
 ### Private local exercise Library
 
@@ -212,7 +212,7 @@ Milestone 6F.11 automated verification passed **305 tests across 33 suites** and
 - Assigned sight-reading saves session context and times, but numeric statistics remain temporary. Standalone Practice does not save sessions.
 - Today has no automatic mastery evaluation. Only independent learner plans have explicit day navigation; the original seeded programme has no advancement controls.
 - Unsaved assigned sessions cannot be recovered after the app closes; force-quit recovery is deferred.
-- Progress, Ask My Teacher, and Settings remain placeholder screens.
+- Progress, Ask My Teacher, and Settings remain planned and are hidden from navigation.
 - Today cannot open, import, crop, or display the Beyer PDF; reference-material availability is informational.
 - MusicXML importing and Verovio rendering are development foundations without a production file picker or interactive-song UI.
 - PDF/photo import, optical music recognition, audio or raw MIDI performance recording, tempo/rhythm analysis, teacher accounts and teacher-created plans, Ask My Teacher chat, coach API, cloud sync, and collaboration remain planned workflows.
